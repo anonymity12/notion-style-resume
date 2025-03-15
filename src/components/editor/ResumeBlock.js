@@ -75,7 +75,7 @@ export const ResumeBlock = ({
   onAddBlock,
   id,
   isDragging,
-  dragHandleProps,
+  dragHandleProps = null,
   isHeading = type === 'heading',
   parentId
 }) => {
@@ -159,14 +159,16 @@ export const ResumeBlock = ({
   return (
     <div className={`relative group ${isDragging ? 'opacity-50' : ''}`}>
       {/* Drag handle positioned outside the block but connected to hover states */}
-      <div 
-        className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-6 transition-opacity drag-handle cursor-grab z-10 ${isHovered || isDragHandleHovered ? 'opacity-100' : 'opacity-0'}`}
-        {...dragHandleProps}
-        onMouseEnter={handleDragHandleEnter}
-        onMouseLeave={handleDragHandleLeave}
-      >
-        <GripVertical className="w-4 h-4 text-gray-400" />
-      </div>
+      {dragHandleProps && (
+        <div 
+          className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-6 transition-opacity drag-handle cursor-grab z-10 ${isHovered || isDragHandleHovered ? 'opacity-100' : 'opacity-0'}`}
+          onMouseEnter={handleDragHandleEnter}
+          onMouseLeave={handleDragHandleLeave}
+          {...dragHandleProps}
+        >
+          <GripVertical className="w-4 h-4 text-gray-400" />
+        </div>
+      )}
 
       <div
         ref={blockRef}
@@ -224,55 +226,9 @@ export const ResumeBlock = ({
 };
 
 export const ResumeBlockContainer = ({ blocks, onBlocksChange }) => {
-  const onDragEnd = (result) => {
-    const { destination, source, draggableId } = result;
-    
-    // If there's no destination or the item was dropped back in its original position
-    if (!destination || 
-        (destination.droppableId === source.droppableId && 
-         destination.index === source.index)) {
-      return;
-    }
-    
-    // Create a new blocks array based on the drag result
-    const newBlocks = [...blocks];
-    
-    // Find the dragged block
-    const draggedBlock = newBlocks.find(block => block.id === draggableId);
-    
-    // If it's a heading block, we need to get all its children as well
-    let blocksToDrag = [draggedBlock];
-    
-    if (draggedBlock.type === 'heading') {
-      // Get all child blocks that belong to this heading
-      const childBlocks = newBlocks.filter(block => block.parentId === draggedBlock.id);
-      blocksToDrag = [draggedBlock, ...childBlocks];
-    }
-    
-    // Remove the blocks from their original position
-    const blocksWithoutDragged = newBlocks.filter(block => !blocksToDrag.includes(block));
-    
-    // Calculate new index
-    let insertIndex = destination.index;
-    
-    // If we're moving a block downwards, we need to adjust the insert index
-    // based on the number of elements we're removing from before the destination
-    const elementsBeforeDestination = blocksToDrag.filter(block => 
-      newBlocks.indexOf(block) < destination.index
-    ).length;
-    
-    insertIndex -= elementsBeforeDestination;
-    
-    // Insert the blocks at the new position
-    blocksWithoutDragged.splice(insertIndex, 0, ...blocksToDrag);
-    
-    // Update block state
-    onBlocksChange(blocksWithoutDragged);
-  };
-  
   // Group blocks by parent-child relationships for dragging
   const getGroupedBlocks = () => {
-    // Find all heading blocks (those without a parentId)
+    // Find all heading blocks (those without a parentId or with type heading)
     const headingBlocks = blocks.filter(block => block.type === 'heading');
     
     // For each heading, gather its children
@@ -288,26 +244,36 @@ export const ResumeBlockContainer = ({ blocks, onBlocksChange }) => {
   const groupedBlocks = getGroupedBlocks();
   
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="resume-blocks">
-        {(provided) => (
-          <div
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-            className="flex flex-col gap-2"
-          >
-            {groupedBlocks.map((headingBlock, index) => (
-              <Draggable
-                key={headingBlock.id}
-                draggableId={headingBlock.id}
-                index={index}
-              >
-                {(provided, snapshot) => (
+    <Droppable droppableId="resume-blocks">
+      {(provided) => (
+        <div
+          {...provided.droppableProps}
+          ref={provided.innerRef}
+          className="flex flex-col gap-2"
+        >
+          {groupedBlocks.map((headingBlock, index) => (
+            <Draggable
+              key={headingBlock.id}
+              draggableId={headingBlock.id}
+              index={index}
+            >
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  className="mb-4"
+                >
+                  {/* Pass dragHandleProps to a custom drag handle - Fixed */}
                   <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    className="mb-4"
+                    className="relative"
                   >
+                    <div 
+                      className="absolute left-0 top-4 -ml-6 cursor-grab z-10"
+                      {...provided.dragHandleProps}
+                    >
+                      <GripVertical className="w-4 h-4 text-gray-400" />
+                    </div>
+                    
                     <ResumeBlock
                       id={headingBlock.id}
                       content={headingBlock.content}
@@ -334,7 +300,6 @@ export const ResumeBlockContainer = ({ blocks, onBlocksChange }) => {
                         onBlocksChange(newBlocks);
                       }}
                       isDragging={snapshot.isDragging}
-                      dragHandleProps={provided.dragHandleProps}
                       isHeading={true}
                     />
                     
@@ -373,13 +338,13 @@ export const ResumeBlockContainer = ({ blocks, onBlocksChange }) => {
                       ))}
                     </div>
                   </div>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+                </div>
+              )}
+            </Draggable>
+          ))}
+          {provided.placeholder}
+        </div>
+      )}
+    </Droppable>
   );
 };
