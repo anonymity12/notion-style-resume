@@ -2,11 +2,12 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Heading1, Text, LayoutGrid, PanelLeftClose } from 'lucide-react';
+import { Plus, Heading1, Text, LayoutGrid, PanelLeftClose, GripVertical } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import * as Popover from '@radix-ui/react-popover';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const BlockMenu = ({ onFormatClick, position }) => {
   return (
@@ -72,9 +73,14 @@ export const ResumeBlock = ({
   onChange,
   type = 'paragraph',
   onAddBlock,
-  id
+  id,
+  isDragging,
+  dragHandleProps,
+  isHeading = type === 'heading',
+  parentId
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isDragHandleHovered, setIsDragHandleHovered] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const blockRef = useRef(null);
@@ -100,11 +106,30 @@ export const ResumeBlock = ({
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
-    setShowMenu(false);
+    // Only hide if we're not hovering the drag handle
+    if (!isDragHandleHovered) {
+      setIsHovered(false);
+      setShowMenu(false);
+    }
+  };
+
+  const handleDragHandleEnter = () => {
+    setIsDragHandleHovered(true);
+    setIsHovered(true);
+  };
+
+  const handleDragHandleLeave = () => {
+    setIsDragHandleHovered(false);
+    // Only hide if we're not hovering the main block
+    if (!isHovered) {
+      setIsHovered(false);
+    }
   };
 
   const handleClick = (e) => {
+    // Don't show formatting menu when clicking on drag handle
+    if (e.target.closest('.drag-handle')) return;
+    
     const rect = blockRef.current?.getBoundingClientRect();
     if (rect) {
       setMenuPosition({
@@ -132,7 +157,17 @@ export const ResumeBlock = ({
   };
 
   return (
-    <div className="relative group">
+    <div className={`relative group ${isDragging ? 'opacity-50' : ''}`}>
+      {/* Drag handle positioned outside the block but connected to hover states */}
+      <div 
+        className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-6 transition-opacity drag-handle cursor-grab z-10 ${isHovered || isDragHandleHovered ? 'opacity-100' : 'opacity-0'}`}
+        {...dragHandleProps}
+        onMouseEnter={handleDragHandleEnter}
+        onMouseLeave={handleDragHandleLeave}
+      >
+        <GripVertical className="w-4 h-4 text-gray-400" />
+      </div>
+
       <div
         ref={blockRef}
         className={`relative ${
@@ -152,12 +187,6 @@ export const ResumeBlock = ({
             />
           )}
         </AnimatePresence>
-
-        {isHovered && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 -ml-6 opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-          </div>
-        )}
       </div>
       
       <Popover.Root>
@@ -179,7 +208,7 @@ export const ResumeBlock = ({
                   key={option.type + (option.layout || '')}
                   className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded text-sm text-gray-700 transition-colors"
                   onClick={() => {
-                    onAddBlock(option.type, option.layout);
+                    onAddBlock(option.type, option.layout, id);
                   }}
                 >
                   {option.icon}
@@ -191,5 +220,166 @@ export const ResumeBlock = ({
         </Popover.Portal>
       </Popover.Root>
     </div>
+  );
+};
+
+export const ResumeBlockContainer = ({ blocks, onBlocksChange }) => {
+  const onDragEnd = (result) => {
+    const { destination, source, draggableId } = result;
+    
+    // If there's no destination or the item was dropped back in its original position
+    if (!destination || 
+        (destination.droppableId === source.droppableId && 
+         destination.index === source.index)) {
+      return;
+    }
+    
+    // Create a new blocks array based on the drag result
+    const newBlocks = [...blocks];
+    
+    // Find the dragged block
+    const draggedBlock = newBlocks.find(block => block.id === draggableId);
+    
+    // If it's a heading block, we need to get all its children as well
+    let blocksToDrag = [draggedBlock];
+    
+    if (draggedBlock.type === 'heading') {
+      // Get all child blocks that belong to this heading
+      const childBlocks = newBlocks.filter(block => block.parentId === draggedBlock.id);
+      blocksToDrag = [draggedBlock, ...childBlocks];
+    }
+    
+    // Remove the blocks from their original position
+    const blocksWithoutDragged = newBlocks.filter(block => !blocksToDrag.includes(block));
+    
+    // Calculate new index
+    let insertIndex = destination.index;
+    
+    // If we're moving a block downwards, we need to adjust the insert index
+    // based on the number of elements we're removing from before the destination
+    const elementsBeforeDestination = blocksToDrag.filter(block => 
+      newBlocks.indexOf(block) < destination.index
+    ).length;
+    
+    insertIndex -= elementsBeforeDestination;
+    
+    // Insert the blocks at the new position
+    blocksWithoutDragged.splice(insertIndex, 0, ...blocksToDrag);
+    
+    // Update block state
+    onBlocksChange(blocksWithoutDragged);
+  };
+  
+  // Group blocks by parent-child relationships for dragging
+  const getGroupedBlocks = () => {
+    // Find all heading blocks (those without a parentId)
+    const headingBlocks = blocks.filter(block => block.type === 'heading');
+    
+    // For each heading, gather its children
+    return headingBlocks.map(headingBlock => {
+      const children = blocks.filter(block => block.parentId === headingBlock.id);
+      return {
+        ...headingBlock,
+        children
+      };
+    });
+  };
+  
+  const groupedBlocks = getGroupedBlocks();
+  
+  return (
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="resume-blocks">
+        {(provided) => (
+          <div
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+            className="flex flex-col gap-2"
+          >
+            {groupedBlocks.map((headingBlock, index) => (
+              <Draggable
+                key={headingBlock.id}
+                draggableId={headingBlock.id}
+                index={index}
+              >
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    className="mb-4"
+                  >
+                    <ResumeBlock
+                      id={headingBlock.id}
+                      content={headingBlock.content}
+                      type={headingBlock.type}
+                      onChange={(newContent) => {
+                        const updatedBlocks = blocks.map(block => 
+                          block.id === headingBlock.id ? { ...block, content: newContent } : block
+                        );
+                        onBlocksChange(updatedBlocks);
+                      }}
+                      onAddBlock={(type, layout, blockId) => {
+                        // Function to add a new block after the current one
+                        const newBlock = {
+                          id: `block-${Date.now()}`,
+                          content: '',
+                          type,
+                          layout,
+                          parentId: type === 'heading' ? null : headingBlock.id
+                        };
+                        
+                        const blockIndex = blocks.findIndex(b => b.id === blockId);
+                        const newBlocks = [...blocks];
+                        newBlocks.splice(blockIndex + 1, 0, newBlock);
+                        onBlocksChange(newBlocks);
+                      }}
+                      isDragging={snapshot.isDragging}
+                      dragHandleProps={provided.dragHandleProps}
+                      isHeading={true}
+                    />
+                    
+                    {/* Render child blocks */}
+                    <div className="pl-4 mt-2">
+                      {headingBlock.children.map((childBlock, childIndex) => (
+                        <ResumeBlock
+                          key={childBlock.id}
+                          id={childBlock.id}
+                          content={childBlock.content}
+                          type={childBlock.type}
+                          layout={childBlock.layout}
+                          parentId={headingBlock.id}
+                          onChange={(newContent) => {
+                            const updatedBlocks = blocks.map(block => 
+                              block.id === childBlock.id ? { ...block, content: newContent } : block
+                            );
+                            onBlocksChange(updatedBlocks);
+                          }}
+                          onAddBlock={(type, layout, blockId) => {
+                            // Function to add a new block after the current one
+                            const newBlock = {
+                              id: `block-${Date.now()}`,
+                              content: '',
+                              type,
+                              layout,
+                              parentId: type === 'heading' ? null : headingBlock.id
+                            };
+                            
+                            const blockIndex = blocks.findIndex(b => b.id === blockId);
+                            const newBlocks = [...blocks];
+                            newBlocks.splice(blockIndex + 1, 0, newBlock);
+                            onBlocksChange(newBlocks);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 };
