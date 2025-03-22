@@ -48,7 +48,13 @@ export default function DragTest() {
   ]);
 
   useEffect(() => {
+    // Only set mounted to true on the client side to prevent hydration issues
     setMounted(true);
+    
+    // Add this cleanup function to handle any lingering drag operations
+    return () => {
+      // Cleanup logic if needed
+    };
   }, []);
 
   const handleBlocksChange = (newBlocks) => {
@@ -57,6 +63,9 @@ export default function DragTest() {
   };
   
   const onDragEnd = (result) => {
+    // Safety check - if component is not mounted, don't proceed
+    if (!mounted) return;
+    
     const { destination, source, draggableId } = result;
     
     // If there's no destination or the item was dropped back in its original position
@@ -68,47 +77,52 @@ export default function DragTest() {
     
     console.log('Drag ended:', result);
     
-    // Create a new blocks array based on the drag result
-    const newBlocks = [...blocks];
-    
-    // Find the dragged block
-    const draggedBlock = newBlocks.find(block => block.id === draggableId);
-    
-    if (!draggedBlock) {
-      console.error('Could not find dragged block:', draggableId);
-      return;
+    try {
+      // Create a new blocks array based on the drag result
+      const newBlocks = [...blocks];
+      
+      // Find the dragged block
+      const draggedBlock = newBlocks.find(block => block.id === draggableId);
+      
+      if (!draggedBlock) {
+        console.error('Could not find dragged block:', draggableId);
+        return;
+      }
+      
+      // If it's a heading block, we need to get all its children as well
+      let blocksToDrag = [draggedBlock];
+      
+      if (draggedBlock.type === 'heading') {
+        // Get all child blocks that belong to this heading
+        const childBlocks = newBlocks.filter(block => block.parentId === draggedBlock.id);
+        blocksToDrag = [draggedBlock, ...childBlocks];
+      }
+      
+      // Remove the blocks from their original position
+      const blocksWithoutDragged = newBlocks.filter(block => !blocksToDrag.includes(block));
+      
+      // Calculate new index
+      let insertIndex = destination.index;
+      
+      // If we're moving a block downwards, we need to adjust the insert index
+      // based on the number of elements we're removing from before the destination
+      const elementsBeforeDestination = blocksToDrag.filter(block => 
+        newBlocks.indexOf(block) < destination.index
+      ).length;
+      
+      insertIndex -= elementsBeforeDestination;
+      
+      // Insert the blocks at the new position
+      blocksWithoutDragged.splice(insertIndex, 0, ...blocksToDrag);
+      
+      // Update block state
+      handleBlocksChange(blocksWithoutDragged);
+    } catch (error) {
+      console.error('Error in drag operation:', error);
     }
-    
-    // If it's a heading block, we need to get all its children as well
-    let blocksToDrag = [draggedBlock];
-    
-    if (draggedBlock.type === 'heading') {
-      // Get all child blocks that belong to this heading
-      const childBlocks = newBlocks.filter(block => block.parentId === draggedBlock.id);
-      blocksToDrag = [draggedBlock, ...childBlocks];
-    }
-    
-    // Remove the blocks from their original position
-    const blocksWithoutDragged = newBlocks.filter(block => !blocksToDrag.includes(block));
-    
-    // Calculate new index
-    let insertIndex = destination.index;
-    
-    // If we're moving a block downwards, we need to adjust the insert index
-    // based on the number of elements we're removing from before the destination
-    const elementsBeforeDestination = blocksToDrag.filter(block => 
-      newBlocks.indexOf(block) < destination.index
-    ).length;
-    
-    insertIndex -= elementsBeforeDestination;
-    
-    // Insert the blocks at the new position
-    blocksWithoutDragged.splice(insertIndex, 0, ...blocksToDrag);
-    
-    // Update block state
-    handleBlocksChange(blocksWithoutDragged);
   };
 
+  // Don't render anything until the component is mounted on the client
   if (!mounted) return null;
 
   return (
