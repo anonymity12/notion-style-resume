@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { ResumeBlockContainer } from './ResumeBlock';
-import { DragDropContext } from 'react-beautiful-dnd';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 
 export default function DragTest() {
   const [mounted, setMounted] = useState(false);
@@ -47,6 +54,16 @@ export default function DragTest() {
     }
   ]);
 
+  // 设置传感器
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5, // 需要移动5px才激活拖动
+      },
+    }),
+    useSensor(KeyboardSensor)
+  );
+
   useEffect(() => {
     // Only set mounted to true on the client side to prevent hydration issues
     setMounted(true);
@@ -62,32 +79,34 @@ export default function DragTest() {
     console.log('Blocks updated:', newBlocks);
   };
   
-  const onDragEnd = (result) => {
+  const handleDragEnd = (event) => {
     // Safety check - if component is not mounted, don't proceed
     if (!mounted) return;
     
-    const { destination, source, draggableId } = result;
+    const { active, over } = event;
     
-    // If there's no destination or the item was dropped back in its original position
-    if (!destination || 
-        (destination.droppableId === source.droppableId && 
-         destination.index === source.index)) {
-      return;
-    }
+    // If there's no destination, don't proceed
+    if (!over) return;
     
-    console.log('Drag ended:', result);
+    // If the item was dropped back in its original position
+    if (active.id === over.id) return;
+    
+    console.log('Drag ended:', event);
     
     try {
       // Create a new blocks array based on the drag result
       const newBlocks = [...blocks];
       
       // Find the dragged block
-      const draggedBlock = newBlocks.find(block => block.id === draggableId);
+      const draggedBlockIndex = newBlocks.findIndex(block => block.id === active.id);
+      const overBlockIndex = newBlocks.findIndex(block => block.id === over.id);
       
-      if (!draggedBlock) {
-        console.error('Could not find dragged block:', draggableId);
+      if (draggedBlockIndex === -1) {
+        console.error('Could not find dragged block:', active.id);
         return;
       }
+      
+      const draggedBlock = newBlocks[draggedBlockIndex];
       
       // If it's a heading block, we need to get all its children as well
       let blocksToDrag = [draggedBlock];
@@ -102,12 +121,12 @@ export default function DragTest() {
       const blocksWithoutDragged = newBlocks.filter(block => !blocksToDrag.includes(block));
       
       // Calculate new index
-      let insertIndex = destination.index;
+      let insertIndex = overBlockIndex;
       
       // If we're moving a block downwards, we need to adjust the insert index
       // based on the number of elements we're removing from before the destination
       const elementsBeforeDestination = blocksToDrag.filter(block => 
-        newBlocks.indexOf(block) < destination.index
+        newBlocks.indexOf(block) < overBlockIndex
       ).length;
       
       insertIndex -= elementsBeforeDestination;
@@ -126,7 +145,11 @@ export default function DragTest() {
   if (!mounted) return null;
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DndContext 
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
       <div className="p-4">
         <h1 className="text-2xl font-bold mb-4">简历拖拽测试</h1>
         <div className="border p-4 rounded-lg">
@@ -136,6 +159,6 @@ export default function DragTest() {
           />
         </div>
       </div>
-    </DragDropContext>
+    </DndContext>
   );
 }

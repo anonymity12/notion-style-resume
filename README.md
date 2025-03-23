@@ -77,7 +77,7 @@ pnpm dev
 ## 技术实现
 
 基于 React 和以下核心库：
-- react-beautiful-dnd：提供拖拽功能
+- dnd-kit：提供拖拽功能
 - @tiptap/react：提供富文本编辑功能
 - framer-motion：提供动画效果
 - Tailwind CSS：提供样式
