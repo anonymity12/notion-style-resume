@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Heading1, Text, LayoutGrid, GripVertical } from 'lucide-react';
+import { Plus, Heading1, Text, LayoutGrid, GripVertical, Columns3 } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -58,6 +58,11 @@ const blockTypeOptions = [
     icon: <Text className="w-4 h-4" />,
     label: '段落',
     type: 'paragraph'
+  },
+  {
+    icon: <Columns3 className="w-4 h-4" />,
+    label: '三列布局',
+    type: 'three-column'
   }
 ];
 

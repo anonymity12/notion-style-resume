@@ -14,7 +14,7 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from '@dnd-kit/sortable';
-import { SortableBlock, SortableHeadingBlock, SortableParagraphBlock } from './SortableBlock';
+import { SortableBlock, SortableHeadingBlock, SortableParagraphBlock, SortableThreeColumnBlock } from './SortableBlock';
 
 /**
  * BlockContainer - 可拖拽块的容器组件
@@ -153,7 +153,8 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
     // 创建新块
     const newBlock = {
       id: `block-${Date.now()}`,
-      content: type === 'heading' ? '<h1>新标题</h1>' : '<p>新段落</p>',
+      content: type === 'heading' ? '<h1>新标题</h1>' : 
+               type === 'three-column' ? ['<p>左侧内容</p>', '<p>中间内容</p>', '<p>右侧内容</p>'] : '<p>新段落</p>',
       type,
       // 如果添加的是标题块，parentId为null，否则继承当前块的parentId
       parentId: type === 'heading' ? null : currentBlock.parentId
@@ -167,9 +168,11 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
   
   // 修改块内容的处理函数
   const handleBlockChange = (blockId, newContent) => {
+    // 查找并更新指定块的内容
     const updatedBlocks = blocks.map(block => 
       block.id === blockId ? { ...block, content: newContent } : block
     );
+    
     onBlocksChange(updatedBlocks);
   };
   
@@ -183,6 +186,16 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
           id={block.id}
           content={block.content}
           onChange={(newContent) => handleBlockChange(block.id, newContent)}
+          onAddBlock={handleAddBlock}
+        />
+      );
+    } else if (block.type === 'three-column') {
+      return (
+        <SortableThreeColumnBlock
+          key={block.id}
+          id={block.id}
+          contents={block.content}
+          onChange={(_, newContents) => handleBlockChange(block.id, newContents)}
           onAddBlock={handleAddBlock}
         />
       );
