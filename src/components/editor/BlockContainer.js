@@ -177,26 +177,34 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
         const blockToOptimize = blocks.find(b => b.id === blockId);
         
         if (blockToOptimize) {
-          // 显示正在处理的提示
-          toast.loading('正在使用AI优化内容...');
+          // 显示正在处理的提示，并保存其ID以便后续关闭
+          const loadingToastId = toast.loading('正在使用AI优化内容...');
           
           // 提取纯文本内容（去除HTML标签）
           const tempDiv = document.createElement('div');
           tempDiv.innerHTML = blockToOptimize.content;
           const textContent = tempDiv.textContent || tempDiv.innerText || '';
           
-          // 调用优化API
-          const optimizedContent = await optimizeWithGemini(textContent);
-          console.log("optimizedContent:::",optimizedContent)
-          // 更新块内容
-          onBlocksChange(blocks.map(block => 
-            block.id === blockId 
-              ? { ...block, content: `<p>${optimizedContent}</p>` } 
-              : block
-          ));
-          
-          // 显示成功提示
-          toast.success('内容已优化');
+          try {
+            // 调用优化API
+            const optimizedContent = await optimizeWithGemini(textContent);
+            console.log("optimizedContent:::",optimizedContent)
+            
+            // 更新块内容
+            onBlocksChange(blocks.map(block => 
+              block.id === blockId 
+                ? { ...block, content: `<p>${optimizedContent}</p>` } 
+                : block
+            ));
+            
+            // 关闭loading提示并显示成功提示
+            toast.dismiss(loadingToastId);
+            toast.success('内容已优化');
+          } catch (error) {
+            // 关闭loading提示并显示错误提示
+            toast.dismiss(loadingToastId);
+            toast.error(`优化失败: ${error.message || '请检查API密钥是否正确设置'}`);
+          }
         }
         return;
       } catch (error) {
@@ -227,7 +235,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
   
   // 修改块内容的处理函数
   const handleBlockChange = (blockId, newContent) => {
-    console.log("handleBlockChange", blockId, newContent);
+    console.log("handleBlockChange：：》：", blockId, newContent);
     // 查找并更新指定块的内容
     const updatedBlocks = blocks.map(block => 
       block.id === blockId ? { ...block, content: newContent } : block
