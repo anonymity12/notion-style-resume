@@ -17,7 +17,12 @@ import { CSS } from '@dnd-kit/utilities';
  * - onChange: 内容变更时的回调函数
  * - onAddBlock: 添加新块的回调函数
  * - type: 块类型（'heading' 或 'paragraph'）
- * - layout: 布局类型（'default', 'horizontal', 'vertical'）
+ * - isActive: 是否处于激活状态
+ * - isDark: 是否处于暗色模式
+ * - children: 子组件
+ * - showBlockMenu: 是否显示块菜单
+ * - showFormatMenu: 是否显示格式菜单
+ * - onDelete: 删除块的回调函数
  */
 export const SortableBlock = ({
   id,
@@ -25,7 +30,12 @@ export const SortableBlock = ({
   onChange,
   onAddBlock,
   type = 'paragraph',
-  layout = 'default',
+  isActive = false,
+  isDark = false,
+  children,
+  showBlockMenu = true,
+  showFormatMenu = true,
+  onDelete,
   className = '',
   showAddMenu = true,
 }) => {
@@ -66,10 +76,15 @@ export const SortableBlock = ({
         content={content}
         onChange={onChange}
         onAddBlock={onAddBlock}
+        onDelete={onDelete}
         type={type}
-        layout={layout}
+        className={className}
+        showAddMenu={true}
         renderDragHandle={renderDragHandle}
-        showAddMenu={showAddMenu}
+        isActive={isActive}
+        isDark={isDark}
+        showBlockMenu={showBlockMenu}
+        showFormatMenu={showFormatMenu}
       />
     </div>
   );
@@ -109,7 +124,6 @@ export const SortableParagraphBlock = ({
   content,
   onChange,
   onAddBlock,
-  layout = 'default',
   className = '',
 }) => {
   return (
@@ -119,7 +133,6 @@ export const SortableParagraphBlock = ({
       onChange={onChange}
       onAddBlock={onAddBlock}
       type="paragraph"
-      layout={layout}
       className={className}
     />
   );

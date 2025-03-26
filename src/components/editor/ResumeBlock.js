@@ -67,18 +67,6 @@ const blockTypeOptions = [
     icon: <Text className="w-4 h-4" />,
     label: '段落',
     type: 'paragraph'
-  },
-  {
-    icon: <LayoutGrid className="w-4 h-4" />,
-    label: '水平布局',
-    type: 'paragraph',
-    layout: 'horizontal'
-  },
-  {
-    icon: <PanelLeftClose className="w-4 h-4" />,
-    label: '垂直布局',
-    type: 'paragraph',
-    layout: 'vertical'
   }
 ];
 

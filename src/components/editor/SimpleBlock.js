@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Heading1, Text, LayoutGrid, PanelLeftClose, GripVertical } from 'lucide-react';
+import { Plus, Heading1, Text, LayoutGrid, GripVertical } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -58,18 +58,6 @@ const blockTypeOptions = [
     icon: <Text className="w-4 h-4" />,
     label: '段落',
     type: 'paragraph'
-  },
-  {
-    icon: <LayoutGrid className="w-4 h-4" />,
-    label: '水平布局',
-    type: 'paragraph',
-    layout: 'horizontal'
-  },
-  {
-    icon: <PanelLeftClose className="w-4 h-4" />,
-    label: '垂直布局',
-    type: 'paragraph',
-    layout: 'vertical'
   }
 ];
 
@@ -91,7 +79,6 @@ export const SimpleBlock = ({
   onChange,
   onAddBlock,
   type = 'paragraph',
-  layout = 'default',
   className = '',
   showAddMenu = true,
   renderDragHandle = null,
@@ -157,13 +144,6 @@ export const SimpleBlock = ({
     }
   };
 
-  // 根据布局类型设置样式
-  const layoutClasses = layout === 'horizontal' 
-    ? 'flex flex-row gap-4' 
-    : layout === 'vertical' 
-      ? 'flex flex-col gap-2' 
-      : '';
-
   return (
     <div 
       className={`relative group ${className}`}
@@ -177,7 +157,7 @@ export const SimpleBlock = ({
         ref={blockRef}
         className={`${
           isHovered ? 'bg-gray-50' : ''
-        } p-2 rounded transition-colors ${layoutClasses}`}
+        } p-2 rounded transition-colors`}
         onClick={handleClick}
       >
         <EditorContent editor={editor} />
@@ -194,7 +174,7 @@ export const SimpleBlock = ({
       
       {showAddMenu && (
         <AddBlockMenu 
-          onAddBlock={(type, layout) => onAddBlock(type, layout, id)} 
+          onAddBlock={(type) => onAddBlock(type, id)} 
           isVisible={isHovered}
         />
       )}
@@ -222,10 +202,10 @@ const AddBlockMenu = ({ onAddBlock, isVisible }) => {
         >
           {blockTypeOptions.map((option) => (
             <button
-              key={option.type + (option.layout || '')}
+              key={option.type}
               className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded text-left"
               onClick={() => {
-                onAddBlock(option.type, option.layout);
+                onAddBlock(option.type);
               }}
             >
               {option.icon}
@@ -235,33 +215,5 @@ const AddBlockMenu = ({ onAddBlock, isVisible }) => {
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
-  );
-};
-
-/**
- * 创建水平布局块
- */
-export const HorizontalBlock = ({
-  children,
-  className = '',
-}) => {
-  return (
-    <div className={`flex flex-row gap-4 ${className}`}>
-      {children}
-    </div>
-  );
-};
-
-/**
- * 创建垂直布局块
- */
-export const VerticalBlock = ({
-  children,
-  className = '',
-}) => {
-  return (
-    <div className={`flex flex-col gap-2 ${className}`}>
-      {children}
-    </div>
   );
 };

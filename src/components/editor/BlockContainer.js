@@ -15,7 +15,6 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { SortableBlock, SortableHeadingBlock, SortableParagraphBlock } from './SortableBlock';
-import { HorizontalBlock, VerticalBlock } from './SimpleBlock';
 
 /**
  * BlockContainer - 可拖拽块的容器组件
@@ -80,7 +79,6 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
             id: headingBlock.id,
             content: headingBlock.content,
             type: headingBlock.type,
-            layout: headingBlock.layout,
             parentId: headingBlock.parentId
           });
           
@@ -129,7 +127,6 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
             id: block.id,
             content: block.content,
             type: block.type,
-            layout: block.layout,
             parentId: block.parentId
           });
           
@@ -146,10 +143,9 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
   };
 
   // 添加新块的处理函数
-  const handleAddBlock = (type, layout, blockId) => {
+  const handleAddBlock = (type, blockId) => {
     // 找到当前块的索引
-    const blockIndex = blocks.findIndex(b => b.id === blockId);
-    if (blockIndex === -1) return;
+    const blockIndex = blocks.findIndex(block => block.id === blockId);
     
     // 找到当前块
     const currentBlock = blocks[blockIndex];
@@ -157,9 +153,8 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
     // 创建新块
     const newBlock = {
       id: `block-${Date.now()}`,
-      content: '',
+      content: type === 'heading' ? '<h1>新标题</h1>' : '<p>新段落</p>',
       type,
-      layout,
       // 如果添加的是标题块，parentId为null，否则继承当前块的parentId
       parentId: type === 'heading' ? null : currentBlock.parentId
     };
@@ -178,34 +173,30 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
     onBlocksChange(updatedBlocks);
   };
   
-  // 渲染块的函数，根据layout属性选择渲染方式
+  // 渲染单个块
   const renderBlock = (block) => {
-    // 渲染布局容器
-    if (block.layout === 'horizontal') {
+    // 基于块类型渲染不同组件
+    if (block.type === 'heading') {
       return (
-        <HorizontalBlock key={block.id}>
-          {/* 在这里你可以渲染水平布局内的子块 */}
-        </HorizontalBlock>
+        <SortableHeadingBlock
+          key={block.id}
+          id={block.id}
+          content={block.content}
+          onChange={(newContent) => handleBlockChange(block.id, newContent)}
+          onAddBlock={handleAddBlock}
+        />
       );
-    } else if (block.layout === 'vertical') {
+    } else {
       return (
-        <VerticalBlock key={block.id}>
-          {/* 在这里你可以渲染垂直布局内的子块 */}
-        </VerticalBlock>
+        <SortableParagraphBlock
+          key={block.id}
+          id={block.id}
+          content={block.content}
+          onChange={(newContent) => handleBlockChange(block.id, newContent)}
+          onAddBlock={handleAddBlock}
+        />
       );
     }
-    
-    // 渲染普通的段落块
-    return (
-      <SortableParagraphBlock
-        key={block.id}
-        id={block.id}
-        content={block.content}
-        onChange={(newContent) => handleBlockChange(block.id, newContent)}
-        onAddBlock={handleAddBlock}
-        layout={block.layout}
-      />
-    );
   };
   
   return (
@@ -243,18 +234,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
                     >
                       {headingBlock.children.map((childBlock) => (
                         <div key={childBlock.id} className="mb-2">
-                          {childBlock.layout === 'horizontal' || childBlock.layout === 'vertical' 
-                            ? renderBlock(childBlock)
-                            : (
-                              <SortableParagraphBlock
-                                id={childBlock.id}
-                                content={childBlock.content}
-                                onChange={(newContent) => handleBlockChange(childBlock.id, newContent)}
-                                onAddBlock={handleAddBlock}
-                                layout={childBlock.layout}
-                              />
-                            )
-                          }
+                          {renderBlock(childBlock)}
                         </div>
                       ))}
                     </SortableContext>

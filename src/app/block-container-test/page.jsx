@@ -27,13 +27,6 @@ export default function BlockContainerTest() {
       type: 'paragraph',
       parentId: 'heading-personal'
     },
-    {
-      id: 'horizontal-layout-1',
-      content: '<p>水平布局演示</p>',
-      type: 'paragraph',
-      layout: 'horizontal',
-      parentId: 'heading-personal'
-    },
 
     // 教育经历部分
     {
@@ -52,13 +45,6 @@ export default function BlockContainerTest() {
       id: 'paragraph-edu1-detail',
       content: '<p>GPA: 3.8/4.0 | 相关课程：数据结构、算法设计、操作系统、计算机网络</p>',
       type: 'paragraph',
-      parentId: 'heading-education'
-    },
-    {
-      id: 'vertical-layout-1',
-      content: '<p>垂直布局演示</p>',
-      type: 'paragraph',
-      layout: 'vertical',
       parentId: 'heading-education'
     },
     
