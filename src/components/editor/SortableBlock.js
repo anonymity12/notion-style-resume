@@ -15,29 +15,23 @@ import { CSS } from '@dnd-kit/utilities';
  * - id: 块的唯一标识符（用于拖拽识别）
  * - content: 块的HTML内容
  * - onChange: 内容变更时的回调函数
- * - onAddBlock: 添加新块的回调函数
+ * - onBlockMenuClicked: 添加新块的回调函数
  * - type: 块类型（'heading' 或 'paragraph'）
- * - isActive: 是否处于激活状态
  * - isDark: 是否处于暗色模式
  * - children: 子组件
- * - showBlockMenu: 是否显示块菜单
  * - showFormatMenu: 是否显示格式菜单
- * - onDelete: 删除块的回调函数
  */
 export const SortableBlock = ({
   id,
   content,
   onChange,
-  onAddBlock,
+  onBlockMenuClicked,
   type = 'paragraph',
-  isActive = false,
   isDark = false,
   children,
-  showBlockMenu = true,
   showFormatMenu = true,
-  onDelete,
   className = '',
-  showAddMenu = true,
+  showClickedMenu = true,
 }) => {
   // 使用 useSortable 钩子获取拖拽相关属性和方法
   const {
@@ -75,15 +69,12 @@ export const SortableBlock = ({
         id={id}
         content={content}
         onChange={onChange}
-        onAddBlock={onAddBlock}
-        onDelete={onDelete}
+        onBlockMenuClicked={onBlockMenuClicked}
         type={type}
         className={className}
-        showAddMenu={true}
+        showClickedMenu={true}
         renderDragHandle={renderDragHandle}
-        isActive={isActive}
         isDark={isDark}
-        showBlockMenu={showBlockMenu}
         showFormatMenu={showFormatMenu}
       />
     </div>
@@ -99,7 +90,7 @@ export const SortableHeadingBlock = ({
   id,
   content,
   onChange,
-  onAddBlock,
+  onBlockMenuClicked,
   className = '',
 }) => {
   return (
@@ -107,7 +98,7 @@ export const SortableHeadingBlock = ({
       id={id}
       content={content}
       onChange={onChange}
-      onAddBlock={onAddBlock}
+      onBlockMenuClicked={onBlockMenuClicked}
       type="heading"
       className={`mb-4 ${className}`}
     />
@@ -123,7 +114,7 @@ export const SortableParagraphBlock = ({
   id,
   content,
   onChange,
-  onAddBlock,
+  onBlockMenuClicked,
   className = '',
 }) => {
   return (
@@ -131,7 +122,7 @@ export const SortableParagraphBlock = ({
       id={id}
       content={content}
       onChange={onChange}
-      onAddBlock={onAddBlock}
+      onBlockMenuClicked={onBlockMenuClicked}
       type="paragraph"
       className={className}
     />
@@ -147,7 +138,7 @@ export const SortableThreeColumnBlock = ({
   id,
   contents = ['<p>左侧内容</p>', '<p>中间内容</p>', '<p>右侧内容</p>'],
   onChange,
-  onAddBlock,
+  onBlockMenuClicked,
   className = '',
 }) => {
   // 处理每个列的内容变化
@@ -211,8 +202,7 @@ export const SortableThreeColumnBlock = ({
             content={contents[0]}
             onChange={(_, newContent) => handleColumnChange(0, newContent)}
             type="paragraph"
-            showAddMenu={false}
-            showBlockMenu={false}
+            showClickedMenu={false}
           />
         </div>
         
@@ -223,8 +213,7 @@ export const SortableThreeColumnBlock = ({
             content={contents[1]}
             onChange={(_, newContent) => handleColumnChange(1, newContent)}
             type="paragraph"
-            showAddMenu={false}
-            showBlockMenu={false}
+            showClickedMenu={false}
           />
         </div>
         
@@ -235,8 +224,7 @@ export const SortableThreeColumnBlock = ({
             content={contents[2]}
             onChange={(_, newContent) => handleColumnChange(2, newContent)}
             type="paragraph"
-            showAddMenu={false}
-            showBlockMenu={false}
+            showClickedMenu={false}
           />
         </div>
       </div>

@@ -142,28 +142,52 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
     }
   };
 
-  // 添加新块的处理函数
-  const handleAddBlock = (type, blockId) => {
-    // 找到当前块的索引
-    const blockIndex = blocks.findIndex(block => block.id === blockId);
-    
-    // 找到当前块
-    const currentBlock = blocks[blockIndex];
-    
-    // 创建新块
-    const newBlock = {
-      id: `block-${Date.now()}`,
-      content: type === 'heading' ? '<h1>新标题</h1>' : 
-               type === 'three-column' ? ['<p>左侧内容</p>', '<p>中间内容</p>', '<p>右侧内容</p>'] : '<p>新段落</p>',
-      type,
-      // 如果添加的是标题块，parentId为null，否则继承当前块的parentId
-      parentId: type === 'heading' ? null : currentBlock.parentId
-    };
-    
-    // 在当前块后插入新块
-    const newBlocks = [...blocks];
-    newBlocks.splice(blockIndex + 1, 0, newBlock);
-    onBlocksChange(newBlocks);
+  // 块被点击后的处理函数
+  const handleBlockMenuClicked = (type, blockId) => {
+    // 删除当前块 
+    if (type === "delete") {
+      // 不能删除所有块，至少保留一个
+      if (blocks.length <= 1) return;
+      
+      // 找到要删除的块
+      const blockToDelete = blocks.find(block => block.id === blockId);
+      if (!blockToDelete) return;
+      
+      // 如果是标题块，需要同时删除其子块
+      let blocksToRemove = [blockId];
+      if (blockToDelete.type === 'heading') {
+        // 查找并添加所有子块ID
+        blocks.forEach(block => {
+          if (block.parentId === blockId) {
+            blocksToRemove.push(block.id);
+          }
+        });
+      }
+      
+      // 过滤掉要删除的块
+      const newBlocks = blocks.filter(block => !blocksToRemove.includes(block.id));
+      
+      // 更新状态
+      onBlocksChange(newBlocks);
+    } else {
+      // 找到当前块的索引
+      const blockIndex = blocks.findIndex(block => block.id === blockId);
+      // 找到当前块
+      const currentBlock = blocks[blockIndex];
+      const newBlocks = [...blocks];
+      // 创建新块
+      const newBlock = {
+        id: `block-${Date.now()}`,
+        content: type === 'heading' ? '<h1>新标题</h1>' : 
+                type === 'three-column' ? ['<p>左侧内容</p>', '<p>中间内容</p>', '<p>右侧内容</p>'] : '<p>新段落</p>',
+        type,
+        // 如果添加的是标题块，parentId为null，否则继承当前块的parentId
+        parentId: type === 'heading' ? null : currentBlock.parentId
+      };
+      // 在当前块后插入新块
+      newBlocks.splice(blockIndex + 1, 0, newBlock);
+      onBlocksChange(newBlocks);
+    }
   };
   
   // 修改块内容的处理函数
@@ -186,7 +210,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
           id={block.id}
           content={block.content}
           onChange={(newContent) => handleBlockChange(block.id, newContent)}
-          onAddBlock={handleAddBlock}
+          onBlockMenuClicked={handleBlockMenuClicked}
         />
       );
     } else if (block.type === 'three-column') {
@@ -196,7 +220,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
           id={block.id}
           contents={block.content}
           onChange={(_, newContents) => handleBlockChange(block.id, newContents)}
-          onAddBlock={handleAddBlock}
+          onBlockMenuClicked={handleBlockMenuClicked}
         />
       );
     } else {
@@ -206,7 +230,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
           id={block.id}
           content={block.content}
           onChange={(newContent) => handleBlockChange(block.id, newContent)}
-          onAddBlock={handleAddBlock}
+          onBlockMenuClicked={handleBlockMenuClicked}
         />
       );
     }
@@ -230,7 +254,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
                 id={headingBlock.id}
                 content={headingBlock.content}
                 onChange={(newContent) => handleBlockChange(headingBlock.id, newContent)}
-                onAddBlock={handleAddBlock}
+                onBlockMenuClicked={handleBlockMenuClicked}
               />
               
               {/* 渲染子块 */}

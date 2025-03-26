@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Heading1, Text, LayoutGrid, GripVertical, Columns3 } from 'lucide-react';
+import { Plus, Heading1, Text, LayoutGrid, GripVertical, Columns3, Trash2 } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -63,6 +63,11 @@ const blockTypeOptions = [
     icon: <Columns3 className="w-4 h-4" />,
     label: '三列布局',
     type: 'three-column'
+  },
+  {
+    icon: <Trash2 className="w-4 h-4 text-red-600" />,
+    label: '删除块',
+    type: 'delete'
   }
 ];
 
@@ -82,11 +87,11 @@ export const SimpleBlock = ({
   id,
   content,
   onChange,
-  onAddBlock,
+  onBlockMenuClicked,
   type = 'paragraph',
   className = '',
-  showAddMenu = true,
-  renderDragHandle = null,
+  showClickedMenu = true,
+  renderDragHandle = null
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showFormatMenu, setShowFormatMenu] = useState(false);
@@ -177,9 +182,9 @@ export const SimpleBlock = ({
         </AnimatePresence>
       </div>
       
-      {showAddMenu && (
-        <AddBlockMenu 
-          onAddBlock={(type) => onAddBlock(type, id)} 
+      {showClickedMenu && (
+        <ClickBlockMenu 
+          onBlockMenuClicked={(type) => onBlockMenuClicked(type, id)} 
           isVisible={isHovered}
         />
       )}
@@ -190,7 +195,7 @@ export const SimpleBlock = ({
 /**
  * 添加块菜单组件 - 处理添加新块的UI
  */
-const AddBlockMenu = ({ onAddBlock, isVisible }) => {
+const ClickBlockMenu = ({ onBlockMenuClicked, isVisible }) => {
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
@@ -210,7 +215,7 @@ const AddBlockMenu = ({ onAddBlock, isVisible }) => {
               key={option.type}
               className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded text-left"
               onClick={() => {
-                onAddBlock(option.type);
+                onBlockMenuClicked(option.type);
               }}
             >
               {option.icon}
