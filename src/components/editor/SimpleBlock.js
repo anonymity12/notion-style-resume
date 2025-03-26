@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Heading1, Text, LayoutGrid, GripVertical, Columns3, Trash2 } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -11,7 +11,7 @@ import * as Popover from '@radix-ui/react-popover';
 /**
  * 格式化菜单组件 - 处理文本格式化操作
  */
-const FormatMenu = ({ onFormatClick, position }) => {
+const FormatMenu = ({ onFormatClick, position, editor, onClose }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
@@ -19,8 +19,8 @@ const FormatMenu = ({ onFormatClick, position }) => {
       exit={{ opacity: 0, y: -10 }}
       className="absolute z-50 bg-white shadow-lg rounded-lg p-2 flex gap-2"
       style={{
-        top: `${position.y}px`,
-        left: `${position.x}px`,
+        top: `${position.top}px`,
+        left: `${position.left}px`,
       }}
     >
       <button
@@ -40,6 +40,15 @@ const FormatMenu = ({ onFormatClick, position }) => {
         className="p-1 hover:bg-gray-100 rounded"
       >
         <span className="underline">U</span>
+      </button>
+      <button
+        onClick={() => {
+          editor.chain().focus().unsetAllMarks().run();
+          onClose();
+        }}
+        className="p-1 hover:bg-gray-100 rounded"
+      >
+        <span>清除格式</span>
       </button>
     </motion.div>
   );
@@ -90,12 +99,11 @@ export const SimpleBlock = ({
   onBlockMenuClicked,
   type = 'paragraph',
   className = '',
-  showClickedMenu = true,
   renderDragHandle = null
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showFormatMenu, setShowFormatMenu] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [formatMenuPosition, setFormatMenuPosition] = useState({ top: 0, left: 0 });
   const blockRef = useRef(null);
 
   // 设置编辑器
@@ -105,15 +113,28 @@ export const SimpleBlock = ({
       Underline,
     ],
     content,
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    },
     editorProps: {
       attributes: {
         class: `outline-none text-gray-900 ${type === 'heading' ? 'text-xl font-bold' : ''} min-h-[1.5em] focus:outline-none`
       }
     }
   });
+
+  useEffect(() => {
+    if (editor) {
+      editor.on('update', () => {
+        const htmlContent = editor.getHTML();
+        if (onChange) {
+          onChange(htmlContent);
+        }
+      });
+    }
+    return () => {
+      if (editor) {
+        editor.off('update');
+      }
+    };
+  }, [editor, onChange]);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -125,14 +146,11 @@ export const SimpleBlock = ({
   };
 
   const handleClick = (e) => {
-    // 点击拖拽手柄区域不显示格式菜单
-    if (e.target.closest('.drag-handle')) return;
-    
     const rect = blockRef.current?.getBoundingClientRect();
     if (rect) {
-      setMenuPosition({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top - 40,
+      setFormatMenuPosition({
+        top: e.clientY - rect.top,
+        left: e.clientX - rect.left,
       });
       setShowFormatMenu(true);
     }
@@ -160,70 +178,31 @@ export const SimpleBlock = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* 渲染拖拽手柄 - 如果提供了渲染函数 */}
       {renderDragHandle && renderDragHandle(isHovered)}
-
+      
       <div
-        ref={blockRef}
-        className={`${
-          isHovered ? 'bg-gray-50' : ''
-        } p-2 rounded transition-colors`}
+        className={`relative w-full transition-all rounded hover:bg-gray-50 ${className}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         onClick={handleClick}
+        ref={blockRef}
       >
-        <EditorContent editor={editor} />
+        <div className="p-2">
+          <EditorContent editor={editor} />
+        </div>
         
         <AnimatePresence>
           {showFormatMenu && (
             <FormatMenu
-              position={menuPosition}
+              position={formatMenuPosition}
+              editor={editor}
+              onClose={() => setShowFormatMenu(false)}
               onFormatClick={handleFormat}
             />
           )}
         </AnimatePresence>
       </div>
       
-      {showClickedMenu && (
-        <ClickBlockMenu 
-          onBlockMenuClicked={(type) => onBlockMenuClicked(type, id)} 
-          isVisible={isHovered}
-        />
-      )}
     </div>
-  );
-};
-
-/**
- * 添加块菜单组件 - 处理添加新块的UI
- */
-const ClickBlockMenu = ({ onBlockMenuClicked, isVisible }) => {
-  return (
-    <Popover.Root>
-      <Popover.Trigger asChild>
-        <div className={`absolute left-0 right-0 h-4 -bottom-2 flex items-center justify-center transition-opacity ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="bg-white shadow-sm hover:shadow rounded-full p-1 cursor-pointer">
-            <Plus className="w-4 h-4 text-gray-500" />
-          </div>
-        </div>
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content 
-          className="bg-white rounded-lg shadow-lg p-2 w-48 flex flex-col gap-1 z-50"
-          sideOffset={5}
-        >
-          {blockTypeOptions.map((option) => (
-            <button
-              key={option.type}
-              className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded text-left"
-              onClick={() => {
-                onBlockMenuClicked(option.type);
-              }}
-            >
-              {option.icon}
-              <span>{option.label}</span>
-            </button>
-          ))}
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
   );
 };

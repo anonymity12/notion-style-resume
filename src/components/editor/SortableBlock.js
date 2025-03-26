@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { GripVertical } from 'lucide-react';
+import { GripVertical, Heading1, Text, Columns3, Trash2, Plus } from 'lucide-react';
 import { SimpleBlock } from './SimpleBlock';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import * as Popover from '@radix-ui/react-popover';
 
 /**
  * SortableBlock - 可拖拽的块组件
@@ -15,7 +16,7 @@ import { CSS } from '@dnd-kit/utilities';
  * - id: 块的唯一标识符（用于拖拽识别）
  * - content: 块的HTML内容
  * - onChange: 内容变更时的回调函数
- * - onBlockMenuClicked: 添加新块的回调函数
+ * - onBlockMenuClicked: 块上下文菜单被点击后的回调函数
  * - type: 块类型（'heading' 或 'paragraph'）
  * - isDark: 是否处于暗色模式
  * - children: 子组件
@@ -40,35 +41,91 @@ export const SortableBlock = ({
     setNodeRef,
     transform,
     transition,
-    isDragging,
+    isDragging
   } = useSortable({ id });
 
-  // 设置拖拽时的样式
+  // 拖拽样式
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.4 : 1,
-    position: 'relative',
-    zIndex: isDragging ? 999 : 'auto',
   };
 
+  // 跟踪鼠标悬停状态
+  const [isHovered, setIsHovered] = useState(false);
+
   // 渲染拖拽手柄
-  const renderDragHandle = (isHovered) => (
-    <div 
-      className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-6 transition-opacity drag-handle cursor-grab z-10 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
-      {...attributes}
-      {...listeners}
-    >
-      <GripVertical className="w-4 h-4 text-gray-400" />
-    </div>
-  );
+  const renderDragHandle = (isHovered) => {
+    const [showMenu, setShowMenu] = useState(false);
+    const blockTypeOptions = [
+      {
+        icon: <Heading1 className="w-4 h-4" />,
+        label: '标题',
+        type: 'heading'
+      },
+      {
+        icon: <Text className="w-4 h-4" />,
+        label: '段落',
+        type: 'paragraph'
+      },
+      {
+        icon: <Columns3 className="w-4 h-4" />,
+        label: '三列布局',
+        type: 'three-column'
+      },
+      {
+        icon: <Trash2 className="w-4 h-4 text-red-600" />,
+        label: '删除块',
+        type: 'delete'
+      }
+    ];
+
+    return (
+      <Popover.Root open={showMenu} onOpenChange={setShowMenu}>
+        <Popover.Trigger asChild>
+          <div 
+            className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-6 transition-opacity drag-handle cursor-pointer z-10 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+            {...attributes}
+            {...listeners}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenu(true);
+            }}
+          >
+            <GripVertical className="w-4 h-4 text-gray-400" />
+          </div>
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Content 
+            className="bg-white rounded-lg shadow-lg p-2 w-48 flex flex-col gap-1 z-50"
+            sideOffset={5}
+          >
+            <div className="mb-1 text-xs text-gray-500 font-medium px-2">块操作</div>
+            {blockTypeOptions.map((option) => (
+              <button
+                key={option.type}
+                className={`flex items-center gap-2 px-2 py-1 rounded text-left ${option.type === 'delete' ? 'text-red-600 hover:bg-red-50' : 'hover:bg-gray-100'}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu(false);
+                  onBlockMenuClicked(option.type, id);
+                }}
+              >
+                {option.icon}
+                <span>{option.label}</span>
+              </button>
+            ))}
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
+    );
+  };
 
   return (
     <div ref={setNodeRef} style={style} className={`${className} ${isDragging ? 'dragging' : ''}`}>
       <SimpleBlock
         id={id}
         content={content}
-        onChange={onChange}
+        onChange={(newContent) => onChange(id, newContent)}
         onBlockMenuClicked={onBlockMenuClicked}
         type={type}
         className={className}
@@ -143,11 +200,13 @@ export const SortableThreeColumnBlock = ({
 }) => {
   // 处理每个列的内容变化
   const handleColumnChange = (columnIndex, newContent) => {
+    console.log(`Column ${columnIndex} changed to:`, newContent);
     if (onChange) {
       // 创建更新后的内容数组
       const updatedContents = [...contents];
       updatedContents[columnIndex] = newContent;
       
+      console.log("Updated contents:", updatedContents);
       // 调用父级的onChange回调
       onChange(id, updatedContents);
     }
@@ -171,15 +230,71 @@ export const SortableThreeColumnBlock = ({
   };
   
   // 渲染拖拽手柄
-  const renderDragHandle = (isHovered) => (
-    <div 
-      className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-6 transition-opacity drag-handle cursor-grab z-10 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
-      {...attributes}
-      {...listeners}
-    >
-      <GripVertical className="w-4 h-4 text-gray-400" />
-    </div>
-  );
+  const renderDragHandle = (isHovered) => {
+    const [showMenu, setShowMenu] = useState(false);
+    const blockTypeOptions = [
+      {
+        icon: <Heading1 className="w-4 h-4" />,
+        label: '标题',
+        type: 'heading'
+      },
+      {
+        icon: <Text className="w-4 h-4" />,
+        label: '段落',
+        type: 'paragraph'
+      },
+      {
+        icon: <Columns3 className="w-4 h-4" />,
+        label: '三列布局',
+        type: 'three-column'
+      },
+      {
+        icon: <Trash2 className="w-4 h-4 text-red-600" />,
+        label: '删除块',
+        type: 'delete'
+      }
+    ];
+
+    return (
+      <Popover.Root open={showMenu} onOpenChange={setShowMenu}>
+        <Popover.Trigger asChild>
+          <div 
+            className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-6 transition-opacity drag-handle cursor-pointer z-10 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+            {...attributes}
+            {...listeners}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenu(true);
+            }}
+          >
+            <GripVertical className="w-4 h-4 text-gray-400" />
+          </div>
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Content 
+            className="bg-white rounded-lg shadow-lg p-2 w-48 flex flex-col gap-1 z-50"
+            sideOffset={5}
+          >
+            <div className="mb-1 text-xs text-gray-500 font-medium px-2">块操作</div>
+            {blockTypeOptions.map((option) => (
+              <button
+                key={option.type}
+                className={`flex items-center gap-2 px-2 py-1 rounded text-left ${option.type === 'delete' ? 'text-red-600 hover:bg-red-50' : 'hover:bg-gray-100'}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu(false);
+                  onBlockMenuClicked(option.type, id);
+                }}
+              >
+                {option.icon}
+                <span>{option.label}</span>
+              </button>
+            ))}
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
+    );
+  };
   
   // 跟踪鼠标悬停状态
   const [isHovered, setIsHovered] = useState(false);
@@ -199,8 +314,8 @@ export const SortableThreeColumnBlock = ({
         <div className="flex-1 min-w-0 border-r pr-2">
           <SimpleBlock
             id={`${id}-column-0`}
-            content={contents[0]}
-            onChange={(_, newContent) => handleColumnChange(0, newContent)}
+            content={contents[0] || '<p></p>'}
+            onChange={(content) => handleColumnChange(0, content)}
             type="paragraph"
             showClickedMenu={false}
           />
@@ -210,8 +325,8 @@ export const SortableThreeColumnBlock = ({
         <div className="flex-1 min-w-0 border-r pr-2">
           <SimpleBlock
             id={`${id}-column-1`}
-            content={contents[1]}
-            onChange={(_, newContent) => handleColumnChange(1, newContent)}
+            content={contents[1] || '<p></p>'}
+            onChange={(content) => handleColumnChange(1, content)}
             type="paragraph"
             showClickedMenu={false}
           />
@@ -221,8 +336,8 @@ export const SortableThreeColumnBlock = ({
         <div className="flex-1 min-w-0">
           <SimpleBlock
             id={`${id}-column-2`}
-            content={contents[2]}
-            onChange={(_, newContent) => handleColumnChange(2, newContent)}
+            content={contents[2] || '<p></p>'}
+            onChange={(content) => handleColumnChange(2, content)}
             type="paragraph"
             showClickedMenu={false}
           />

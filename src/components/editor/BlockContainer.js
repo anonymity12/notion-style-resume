@@ -192,6 +192,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
   
   // 修改块内容的处理函数
   const handleBlockChange = (blockId, newContent) => {
+    console.log("handleBlockChange", blockId, newContent);
     // 查找并更新指定块的内容
     const updatedBlocks = blocks.map(block => 
       block.id === blockId ? { ...block, content: newContent } : block
