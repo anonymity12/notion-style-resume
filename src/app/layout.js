@@ -1,4 +1,5 @@
 import './globals.css'
+import { Toaster } from 'sonner';
 
 export const metadata = {
   title: 'Notion Style Resume',
@@ -7,8 +8,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="zh">
+      <body>
+        {children}
+        <Toaster position="top-center" />
+      </body>
     </html>
   )
 }

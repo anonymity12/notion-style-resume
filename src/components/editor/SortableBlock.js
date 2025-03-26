@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { GripVertical, Heading1, Text, Columns3, Trash2, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { GripVertical, Heading1, Text, Columns3, Trash2, Plus, Sparkles } from 'lucide-react';
 import { SimpleBlock } from './SimpleBlock';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -71,13 +71,24 @@ export const SortableBlock = ({
         icon: <Columns3 className="w-4 h-4" />,
         label: '三列布局',
         type: 'three-column'
-      },
-      {
-        icon: <Trash2 className="w-4 h-4 text-red-600" />,
-        label: '删除块',
-        type: 'delete'
       }
     ];
+    
+    // 如果当前块是段落类型，添加AI优化选项
+    if (type === 'paragraph') {
+      blockTypeOptions.push({
+        icon: <Sparkles className="w-4 h-4 text-yellow-500" />,
+        label: 'AI优化',
+        type: 'ai-optimize'
+      });
+    }
+    
+    // 添加删除选项（始终放在最后）
+    blockTypeOptions.push({
+      icon: <Trash2 className="w-4 h-4 text-red-600" />,
+      label: '删除块',
+      type: 'delete'
+    });
 
     return (
       <Popover.Root open={showMenu} onOpenChange={setShowMenu}>

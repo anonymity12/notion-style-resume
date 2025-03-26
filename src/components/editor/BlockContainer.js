@@ -1,20 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
-  useSensors,
+  useSensors
 } from '@dnd-kit/core';
 import {
   SortableContext,
   verticalListSortingStrategy,
-  arrayMove,
+  arrayMove
 } from '@dnd-kit/sortable';
-import { SortableBlock, SortableHeadingBlock, SortableParagraphBlock, SortableThreeColumnBlock } from './SortableBlock';
+import { SortableHeadingBlock, SortableParagraphBlock, SortableThreeColumnBlock } from './SortableBlock';
+import { optimizeWithGemini } from '../../utils/geminiUtils';
+import { toast } from 'sonner';
 
 /**
  * BlockContainer - 可拖拽块的容器组件
@@ -143,7 +145,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
   };
 
   // 块被点击后的处理函数
-  const handleBlockMenuClicked = (type, blockId) => {
+  const handleBlockMenuClicked = async (type, blockId) => {
     // 删除当前块 
     if (type === "delete") {
       // 不能删除所有块，至少保留一个
@@ -169,6 +171,39 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
       
       // 更新状态
       onBlocksChange(newBlocks);
+    } else if (type === 'ai-optimize') {
+      try {
+        // 查找要优化的块
+        const blockToOptimize = blocks.find(b => b.id === blockId);
+        
+        if (blockToOptimize) {
+          // 显示正在处理的提示
+          toast.loading('正在使用AI优化内容...');
+          
+          // 提取纯文本内容（去除HTML标签）
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = blockToOptimize.content;
+          const textContent = tempDiv.textContent || tempDiv.innerText || '';
+          
+          // 调用优化API
+          const optimizedContent = await optimizeWithGemini(textContent);
+          console.log("optimizedContent:::",optimizedContent)
+          // 更新块内容
+          onBlocksChange(blocks.map(block => 
+            block.id === blockId 
+              ? { ...block, content: `<p>${optimizedContent}</p>` } 
+              : block
+          ));
+          
+          // 显示成功提示
+          toast.success('内容已优化');
+        }
+        return;
+      } catch (error) {
+        // 显示错误提示
+        toast.error(`优化失败: ${error.message || '请检查API密钥是否正确设置'}`);
+        return;
+      }
     } else {
       // 找到当前块的索引
       const blockIndex = blocks.findIndex(block => block.id === blockId);
