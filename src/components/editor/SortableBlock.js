@@ -136,7 +136,12 @@ export const SortableBlock = ({
       <SimpleBlock
         id={id}
         content={content}
-        onChange={(newContent) => onChange(id, newContent)}
+        onChange={(newContent) => {
+          // SimpleBlock只传递内容，我们在这里添加ID
+          if (onChange) {
+            onChange(id, newContent);
+          }
+        }}
         onBlockMenuClicked={onBlockMenuClicked}
         type={type}
         className={className}
@@ -165,7 +170,7 @@ export const SortableHeadingBlock = ({
     <SortableBlock
       id={id}
       content={content}
-      onChange={onChange}
+      onChange={(blockId, newContent) => onChange(blockId, newContent)}
       onBlockMenuClicked={onBlockMenuClicked}
       type="heading"
       className={`mb-4 ${className}`}
@@ -189,7 +194,7 @@ export const SortableParagraphBlock = ({
     <SortableBlock
       id={id}
       content={content}
-      onChange={onChange}
+      onChange={(blockId, newContent) => onChange(blockId, newContent)}
       onBlockMenuClicked={onBlockMenuClicked}
       type="paragraph"
       className={className}
@@ -326,7 +331,10 @@ export const SortableThreeColumnBlock = ({
           <SimpleBlock
             id={`${id}-column-0`}
             content={contents[0] || '<p></p>'}
-            onChange={(content) => handleColumnChange(0, content)}
+            onChange={(content) => {
+              console.log(`左列内容更新为: ${content}`);
+              handleColumnChange(0, content);
+            }}
             type="paragraph"
             showClickedMenu={false}
           />
@@ -337,7 +345,10 @@ export const SortableThreeColumnBlock = ({
           <SimpleBlock
             id={`${id}-column-1`}
             content={contents[1] || '<p></p>'}
-            onChange={(content) => handleColumnChange(1, content)}
+            onChange={(content) => {
+              console.log(`中列内容更新为: ${content}`);
+              handleColumnChange(1, content);
+            }}
             type="paragraph"
             showClickedMenu={false}
           />
@@ -348,7 +359,10 @@ export const SortableThreeColumnBlock = ({
           <SimpleBlock
             id={`${id}-column-2`}
             content={contents[2] || '<p></p>'}
-            onChange={(content) => handleColumnChange(2, content)}
+            onChange={(content) => {
+              console.log(`右列内容更新为: ${content}`);
+              handleColumnChange(2, content);
+            }}
             type="paragraph"
             showClickedMenu={false}
           />

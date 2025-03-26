@@ -38,7 +38,7 @@ export async function POST(request) {
         {
           parts: [
             {
-              text: `请优化以下简历内容，使其更专业、更有吸引力，同时保持内容的真实性。请只返回优化后的文本，不要包含任何额外的解释或评论：\n\n${text}`
+              text: `请优化以下简历内容，使其更专业、更有吸引力，同时保持内容的真实性。请只返回优化后的文本（不要以markdown或者json格式返回，而是尽量返回html格式文本，直接用于页面渲染），不要包含任何额外的解释或评论：\n\n${text}`
             }
           ]
         }
@@ -91,13 +91,33 @@ export async function POST(request) {
     console.log('成功接收到Gemini API响应');
     
     // 提取优化后的文本
-    const optimizedText = data.candidates[0].content.parts[0].text;
+    let optimizedText = data.candidates[0].content.parts[0].text;
+    
+    // 清理返回的文本，移除Markdown代码块标记
+    optimizedText = cleanMarkdownCodeBlocks(optimizedText);
     
     return NextResponse.json({ optimizedText });
   } catch (error) {
     console.error('处理请求时出错:', error);
     return NextResponse.json({ error: `服务器内部错误: ${error.message}` }, { status: 500 });
   }
+}
+
+// 清理Markdown代码块标记的辅助函数
+function cleanMarkdownCodeBlocks(text) {
+  // 移除开头的```html或```javascript等标记
+  let cleanedText = text.replace(/^```(html|javascript|js|typescript|ts|jsx|tsx)?\n/i, '');
+  
+  // 移除结尾的```标记
+  cleanedText = cleanedText.replace(/\n```$/i, '');
+  
+  // 处理文本中间可能出现的代码块
+  cleanedText = cleanedText.replace(/```(html|javascript|js|typescript|ts|jsx|tsx)?\n/gi, '');
+  cleanedText = cleanedText.replace(/\n```/gi, '');
+  
+  console.log('清理后的文本:', cleanedText);
+  
+  return cleanedText;
 }
 
 // 添加一个更新API密钥的端点

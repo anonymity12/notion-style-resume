@@ -190,10 +190,11 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
             const optimizedContent = await optimizeWithGemini(textContent);
             console.log("optimizedContent:::",optimizedContent)
             
+
             // 更新块内容
             onBlocksChange(blocks.map(block => 
               block.id === blockId 
-                ? { ...block, content: `<p>${optimizedContent}</p>` } 
+                ? { ...block, content: `${optimizedContent}` } 
                 : block
             ));
             
@@ -273,7 +274,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
           key={block.id}
           id={block.id}
           content={block.content}
-          onChange={(newContent) => handleBlockChange(block.id, newContent)}
+          onChange={(blockId, newContent) => handleBlockChange(blockId, newContent)}
           onBlockMenuClicked={handleBlockMenuClicked}
         />
       );
