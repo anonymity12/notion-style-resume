@@ -10,68 +10,75 @@ export default function BlockContainerTest() {
   const [blocks, setBlocks] = useState([
     // 个人信息部分
     {
-      id: 'heading-personal',
-      content: '<h1>个人信息</h1>',
+      id: 'user-info',
+      content: '<h1>天天</h1>',
       type: 'heading',
       parentId: null
     },
     {
-      id: 'paragraph-name',
-      content: '<p><strong>姓名：</strong>张三</p>',
+      id: 'username',
+      content: '<p><strong>籍贯：</strong>四川</p>',
       type: 'paragraph',
-      parentId: 'heading-personal'
+      parentId: 'user-info'
     },
     {
-      id: 'paragraph-contact',
+      id: 'user-email',
       content: '<p><strong>联系方式：</strong>电话: 188-8888-8888 | 邮箱: zhangsan@example.com</p>',
       type: 'paragraph',
-      parentId: 'heading-personal'
+      parentId: 'user-info'
     },
 
     // 教育经历部分
     {
-      id: 'heading-education',
+      id: 'education',
       content: '<h1>教育经历</h1>',
       type: 'heading',
       parentId: null
     },
     {
-      id: 'paragraph-edu1',
-      content: '<p><strong>北京大学</strong> | 计算机科学与技术 | 2018-2022</p>',
-      type: 'paragraph',
-      parentId: 'heading-education'
-    },
-    {
-      id: 'paragraph-edu1-detail',
-      content: '<p>GPA: 3.8/4.0 | 相关课程：数据结构、算法设计、操作系统、计算机网络</p>',
-      type: 'paragraph',
-      parentId: 'heading-education'
+      id: 'three-column-edu1',
+      type: 'three-column',
+      parentId: 'education',
+      content: [
+        `<div>
+          <p><strong>北京大学</strong></p>
+          <p>北京, 中国</p>
+        </div>`,
+        `<div>
+          <p><strong>计算机科学与技术</strong></p>
+          <p>本科学士</p>
+        </div>`,
+        `<div>
+          <p><strong>2018-2022</strong></p>
+          <p>GPA: 3.8/4.0</p>
+          <p>相关课程：数据结构、算法设计、操作系统、计算机网络</p>
+        </div>`
+      ]
     },
     
     // 工作经历部分
     {
-      id: 'heading-work',
+      id: 'work-experience',
       content: '<h1>工作经历</h1>',
       type: 'heading',
       parentId: null
     },
     {
-      id: 'paragraph-work1',
-      content: '<p><strong>腾讯</strong> | 前端工程师 | 2023-至今</p>',
-      type: 'paragraph',
-      parentId: 'heading-work'
-    },
-    {
-      id: 'paragraph-work1-detail1',
-      content: '<p>负责微信小程序核心功能开发与优化</p>',
-      type: 'paragraph',
-      parentId: 'heading-work'
-    },
-    {
-      id: 'paragraph-work1-detail2',
-      content: '<p>优化前端性能，页面加载速度提升30%</p>',
-      type: 'paragraph',
-      parentId: 'heading-work'
+      id: 'two-column-work1',
+      type: 'two-column',
+      parentId: 'work-experience',
+      content: [
+        `<div>
+          <p><strong>腾讯</strong></p>
+          <p>深圳, 中国</p>
+          <p>2023-至今</p>
+        </div>`,
+        `<div>
+          <p><strong>前端工程师</strong></p>
+          <p>负责微信小程序核心功能开发与优化</p>
+          <p>优化前端性能，页面加载速度提升30%</p>
+        </div>`
+      ]
     }
   ]);
 
@@ -91,11 +98,7 @@ export default function BlockContainerTest() {
 
   return (
     <div className="max-w-4xl mx-auto my-8 p-4">
-      <h1 className="text-2xl font-bold mb-6">BlockContainer 演示</h1>
-      <p className="mb-4 text-gray-600">
-        这个页面展示了新的 BlockContainer 组件，实现了拖拽、嵌套和不同布局类型。
-        可以尝试拖拽块、编辑内容和添加新块。
-      </p>
+      
       
       <div className="bg-white border rounded-lg p-8 shadow">
         <BlockContainer 
@@ -110,6 +113,11 @@ export default function BlockContainerTest() {
           {JSON.stringify(blocks, null, 2)}
         </pre>
       </div>
+      <h1 className="text-2xl font-bold mb-6">简历 演示</h1>
+      <p className="mb-4 text-gray-600">
+        这个页面展示了新的 简历容器 组件，实现了拖拽、嵌套和不同布局类型。
+        可以尝试拖拽块、编辑内容和添加新块。
+      </p>
     </div>
   );
 }
