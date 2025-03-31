@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -14,7 +14,8 @@ import {
   verticalListSortingStrategy,
   arrayMove
 } from '@dnd-kit/sortable';
-import { SortableHeadingBlock, SortableParagraphBlock, SortableThreeColumnBlock } from './SortableBlock';
+import { SortableHeadingBlock, SortableParagraphBlock } from './SortableBlock';
+import { SortableThreeColumnBlock } from './SortableThreeColumnBlock';
 import { optimizeWithGemini } from '../../utils/geminiUtils';
 import { toast } from 'sonner';
 
