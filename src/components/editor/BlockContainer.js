@@ -16,6 +16,7 @@ import {
 } from '@dnd-kit/sortable';
 import { SortableHeadingBlock, SortableParagraphBlock } from './SortableBlock';
 import { SortableThreeColumnBlock } from './SortableThreeColumnBlock';
+import { SortableTwoColumnBlock } from './SortableTwoColumnBlock';
 import { optimizeWithGemini } from '../../utils/geminiUtils';
 import { toast } from 'sonner';
 
@@ -145,96 +146,157 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
     }
   };
 
-  // 块被点击后的处理函数
-  const handleBlockMenuClicked = async (type, blockId) => {
-    // 删除当前块 
-    if (type === "delete") {
-      // 不能删除所有块，至少保留一个
-      if (blocks.length <= 1) return;
-      
-      // 找到要删除的块
-      const blockToDelete = blocks.find(block => block.id === blockId);
-      if (!blockToDelete) return;
-      
-      // 如果是标题块，需要同时删除其子块
-      let blocksToRemove = [blockId];
-      if (blockToDelete.type === 'heading') {
-        // 查找并添加所有子块ID
-        blocks.forEach(block => {
-          if (block.parentId === blockId) {
-            blocksToRemove.push(block.id);
-          }
-        });
-      }
-      
-      // 过滤掉要删除的块
-      const newBlocks = blocks.filter(block => !blocksToRemove.includes(block.id));
-      
-      // 更新状态
-      onBlocksChange(newBlocks);
-    } else if (type === 'ai-optimize') {
-      try {
-        // 查找要优化的块
-        const blockToOptimize = blocks.find(b => b.id === blockId);
+  // 处理块菜单操作
+  const handleBlockMenuClicked = (action, blockId) => {
+    // 找到当前块
+    const currentBlock = blocks.find(block => block.id === blockId);
+    if (!currentBlock) return;
+    
+    console.log(`Block menu action: ${action} on block ${blockId}`);
+    
+    // 根据不同操作类型处理
+    if (action === 'delete') {
+      // 删除块操作
+      if (window.confirm('确定要删除这个块吗？')) {
+        // 获取该块的所有子块（如果有）
+        const childBlocks = blocks.filter(block => block.parentId === blockId);
         
-        if (blockToOptimize) {
-          // 显示正在处理的提示，并保存其ID以便后续关闭
-          const loadingToastId = toast.loading('正在使用AI优化内容...');
-          
-          // 提取纯文本内容（去除HTML标签）
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = blockToOptimize.content;
-          const textContent = tempDiv.textContent || tempDiv.innerText || '';
-          
-          try {
-            // 调用优化API
-            const optimizedContent = await optimizeWithGemini(textContent);
-            console.log("optimizedContent:::",optimizedContent)
-            
-
-            // 更新块内容
-            onBlocksChange(blocks.map(block => 
-              block.id === blockId 
-                ? { ...block, content: `${optimizedContent}` } 
-                : block
-            ));
-            
-            // 关闭loading提示并显示成功提示
-            toast.dismiss(loadingToastId);
-            toast.success('内容已优化');
-          } catch (error) {
-            // 关闭loading提示并显示错误提示
-            toast.dismiss(loadingToastId);
-            toast.error(`优化失败: ${error.message || '请检查API密钥是否正确设置'}`);
+        // 如果有子块且当前块是标题，则需要提示用户
+        if (childBlocks.length > 0 && currentBlock.type === 'heading') {
+          if (!window.confirm(`该标题下有${childBlocks.length}个子块，删除该标题将同时删除所有子块，确定要删除吗？`)) {
+            return;
           }
+          
+          // 删除该块及其所有子块
+          const newBlocks = blocks.filter(block => block.id !== blockId && block.parentId !== blockId);
+          onBlocksChange(newBlocks);
+        } else {
+          // 只删除该块
+          const newBlocks = blocks.filter(block => block.id !== blockId);
+          onBlocksChange(newBlocks);
         }
-        return;
-      } catch (error) {
-        // 显示错误提示
-        toast.error(`优化失败: ${error.message || '请检查API密钥是否正确设置'}`);
-        return;
       }
+    } else if (action === 'ai-optimize') {
+      // AI 优化内容
+      handleAiOptimize(blockId);
     } else {
-      // 找到当前块的索引
-      const blockIndex = blocks.findIndex(block => block.id === blockId);
-      // 找到当前块
-      const currentBlock = blocks[blockIndex];
-      const newBlocks = [...blocks];
-      // 创建新块
-      const newBlock = {
-        id: `block-${Date.now()}`,
-        content: type === 'heading' ? '<h1>新标题</h1>' : 
-                type === 'three-column' ? ['<p>左侧内容</p>', '<p>中间内容</p>', '<p>右侧内容</p>'] : '<p>新段落</p>',
-        type,
-        // 如果添加的是标题块，parentId为null，否则继承当前块的parentId
-        parentId: type === 'heading' ? null : currentBlock.parentId
-      };
-      // 在当前块后插入新块
-      newBlocks.splice(blockIndex + 1, 0, newBlock);
-      onBlocksChange(newBlocks);
+      // 添加新块（按类型）
+      addBlockAfter(blockId, action);
     }
   };
   
+  // 向块的同级添加新块
+  const addBlockAfter = (blockId, type) => {
+    const currentBlock = blocks.find(block => block.id === blockId);
+    if (!currentBlock) return;
+    
+    // 创建新块
+    const newBlock = {
+      id: `block-${Date.now()}`,
+      type,
+    };
+    
+    // 设置新块的内容
+    if (type === 'three-column') {
+      newBlock.content = ['<p>左侧内容</p>', '<p>中间内容</p>', '<p>右侧内容</p>'];
+    } else if (type === 'two-column') {
+      newBlock.content = [
+        '<div><p><strong>公司/学校名称</strong></p><p>城市, 国家</p><p>起止时间</p></div>', 
+        '<div><p><strong>职位/学位</strong></p><p>详细描述内容...</p></div>'
+      ];
+    } else {
+      newBlock.content = type === 'heading' ? '<h1>新标题</h1>' : '<p>新段落</p>';
+    }
+    
+    let insertIndex;
+    let newBlocks = [...blocks];
+    
+    // 特殊情况：从段落块添加标题块
+    if (type === 'heading' && currentBlock.type !== 'heading' && currentBlock.parentId) {
+      // 查找当前段落的父级标题块
+      const parentBlock = blocks.find(block => block.id === currentBlock.parentId);
+      if (parentBlock && parentBlock.type === 'heading') {
+        // 查找父级标题的所有子块
+        const childrenOfParent = blocks.filter(block => block.parentId === parentBlock.id);
+        // 找到最后一个子块的索引
+        const lastChildIndex = blocks.findIndex(block => block.id === childrenOfParent[childrenOfParent.length - 1].id);
+        // 在父级的最后一个子块之后插入新标题块
+        insertIndex = lastChildIndex + 1;
+        // 设置新块的父级为空（因为标题块总是顶级块）
+        newBlock.parentId = null;
+      } else {
+        // 如果找不到父级标题或父级不是标题，回退到默认行为
+        insertIndex = blocks.findIndex(block => block.id === blockId) + 1;
+        newBlock.parentId = null; // 标题块总是顶级块
+      }
+    } else {
+      // 正常情况：在当前块后插入
+      insertIndex = blocks.findIndex(block => block.id === blockId) + 1;
+      
+      // 设置父级关系
+      if (type === 'heading') {
+        // 标题块总是顶级块
+        newBlock.parentId = null;
+      } else if (currentBlock.type === 'heading') {
+        // 如果当前是标题块，非标题新块成为其子块
+        newBlock.parentId = currentBlock.id;
+      } else {
+        // 否则，新块继承当前块的父级
+        newBlock.parentId = currentBlock.parentId;
+      }
+    }
+    
+    // 插入新块
+    newBlocks.splice(insertIndex, 0, newBlock);
+    onBlocksChange(newBlocks);
+    console.log('Updated blocks:', newBlocks);
+  };
+
+  // 块被点击后的处理函数
+  const handleAiOptimize = async (blockId) => {
+    try {
+      // 查找要优化的块
+      const blockToOptimize = blocks.find(b => b.id === blockId);
+      
+      if (blockToOptimize) {
+        // 显示正在处理的提示，并保存其ID以便后续关闭
+        const loadingToastId = toast.loading('正在使用AI优化内容...');
+        
+        // 提取纯文本内容（去除HTML标签）
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = blockToOptimize.content;
+        const textContent = tempDiv.textContent || tempDiv.innerText || '';
+        
+        try {
+          // 调用优化API
+          const optimizedContent = await optimizeWithGemini(textContent);
+          console.log("optimizedContent:::",optimizedContent)
+          
+
+          // 更新块内容
+          onBlocksChange(blocks.map(block => 
+            block.id === blockId 
+              ? { ...block, content: `${optimizedContent}` } 
+              : block
+          ));
+          
+          // 关闭loading提示并显示成功提示
+          toast.dismiss(loadingToastId);
+          toast.success('内容已优化');
+        } catch (error) {
+          // 关闭loading提示并显示错误提示
+          toast.dismiss(loadingToastId);
+          toast.error(`优化失败: ${error.message || '请检查API密钥是否正确设置'}`);
+        }
+      }
+      return;
+    } catch (error) {
+      // 显示错误提示
+      toast.error(`优化失败: ${error.message || '请检查API密钥是否正确设置'}`);
+      return;
+    }
+  };
+
   // 修改块内容的处理函数
   const handleBlockChange = (blockId, newContent) => {
     console.log("handleBlockChange：：》：", blockId, newContent);
@@ -247,41 +309,55 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
   };
   
   // 渲染单个块
-  const renderBlock = (block) => {
-    // 基于块类型渲染不同组件
-    if (block.type === 'heading') {
-      return (
-        <SortableHeadingBlock
-          key={block.id}
-          id={block.id}
-          content={block.content}
-          onChange={(newContent) => handleBlockChange(block.id, newContent)}
-          onBlockMenuClicked={handleBlockMenuClicked}
-        />
-      );
-    } else if (block.type === 'three-column') {
-      return (
-        <SortableThreeColumnBlock
-          key={block.id}
-          id={block.id}
-          contents={block.content}
-          onChange={(_, newContents) => handleBlockChange(block.id, newContents)}
-          onBlockMenuClicked={handleBlockMenuClicked}
-        />
-      );
-    } else {
-      return (
-        <SortableParagraphBlock
-          key={block.id}
-          id={block.id}
-          content={block.content}
-          onChange={(blockId, newContent) => handleBlockChange(blockId, newContent)}
-          onBlockMenuClicked={handleBlockMenuClicked}
-        />
-      );
+  const renderBlock = useCallback((block) => {
+    
+    switch (block.type) {
+      case 'heading':
+        return (
+          <SortableHeadingBlock
+            key={block.id}
+            id={block.id}
+            content={block.content}
+            onChange={(blockId,newContent) => onChange(blockId, newContent)}
+            onBlockMenuClicked={handleBlockMenuClicked}
+          />
+        );
+      case 'paragraph':
+        return (
+          <SortableParagraphBlock
+            key={block.id}
+            id={block.id}
+            content={block.content}
+            onChange={(blockId, newContent) => handleBlockChange(blockId, newContent)}
+            onBlockMenuClicked={handleBlockMenuClicked}
+          />
+        );
+      case 'three-column':
+        return (
+          <SortableThreeColumnBlock
+            key={block.id}
+            id={block.id}
+            content={block.content}
+            onChange={(id, newContents) => handleBlockChange(id, newContents)}
+            onBlockMenuClicked={handleBlockMenuClicked}
+          />
+        );
+      case 'two-column':
+        return (
+          <SortableTwoColumnBlock
+            key={block.id}
+            id={block.id}
+            content={block.content}
+            onChange={(id, newContents) => handleBlockChange(id, newContents)}
+            onBlockMenuClicked={handleBlockMenuClicked}
+          />
+        );
+      default:
+        console.warn(`Unknown block type: ${block.type}`);
+        return null;
     }
-  };
-  
+  }, [handleBlockChange, handleBlockMenuClicked]);
+
   return (
     <DndContext 
       sensors={sensors}
@@ -299,7 +375,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
               <SortableHeadingBlock
                 id={headingBlock.id}
                 content={headingBlock.content}
-                onChange={(newContent) => handleBlockChange(headingBlock.id, newContent)}
+                onChange={(blockId, newContent) => handleBlockChange(blockId, newContent)}
                 onBlockMenuClicked={handleBlockMenuClicked}
               />
               

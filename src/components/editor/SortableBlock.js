@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { GripVertical, Heading1, Text, Columns3, Trash2, Plus, Sparkles } from 'lucide-react';
+import { GripVertical, Heading1, Text, Columns3, Trash2, Plus, Sparkles, Columns2 } from 'lucide-react';
 import { SimpleBlock } from './SimpleBlock';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -71,6 +71,11 @@ export const SortableBlock = ({
         icon: <Columns3 className="w-4 h-4" />,
         label: '三列布局',
         type: 'three-column'
+      },
+      {
+        icon: <Columns2 className="w-4 h-4" />,
+        label: '两列布局(简历)',
+        type: 'two-column'
       }
     ];
     
@@ -110,7 +115,6 @@ export const SortableBlock = ({
             className="bg-white rounded-lg shadow-lg p-2 w-48 flex flex-col gap-1 z-50"
             sideOffset={5}
           >
-            <div className="mb-1 text-xs text-gray-500 font-medium px-2">块操作</div>
             {blockTypeOptions.map((option) => (
               <button
                 key={option.type}

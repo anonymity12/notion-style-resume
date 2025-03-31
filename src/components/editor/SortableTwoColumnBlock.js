@@ -2,17 +2,22 @@ import React, { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import * as Popover from '@radix-ui/react-popover';
-import { GripVertical, Heading1, Text, Columns3, Columns2, Trash2 } from 'lucide-react';
+import { GripVertical, Heading1, Text, Columns2, Columns3, Trash2 } from 'lucide-react';
 import { SimpleBlock } from './SimpleBlock';
 
 /**
- * SortableThreeColumnBlock - 可拖拽的三列布局块组件
+ * SortableTwoColumnBlock - 可拖拽的两列布局块组件
  * 
- * 创建一个包含三个并排编辑区域的块
+ * 创建一个包含两个编辑区域的块，专为简历内容设计：
+ * - 左侧列占1/4宽度，用于标题、时间、地点等
+ * - 右侧列占3/4宽度，用于内容详情等
  */
-export const SortableThreeColumnBlock = ({
+export const SortableTwoColumnBlock = ({
   id,
-  content = ['<p>左侧内容</p>', '<p>中间内容</p>', '<p>右侧内容</p>'],
+  content = [
+    '<div><p><strong>公司/学校名称</strong></p><p>城市, 国家</p><p>起止时间</p></div>', 
+    '<div><p><strong>职位/学位</strong></p><p>详细描述内容...</p></div>'
+  ],
   onChange,
   onBlockMenuClicked,
   className = '',
@@ -25,6 +30,7 @@ export const SortableThreeColumnBlock = ({
       const updatedContents = [...content];
       updatedContents[columnIndex] = newContent;
       
+      console.log("Updated content:", updatedContents);
       // 调用父级的onChange回调
       onChange(id, updatedContents);
     }
@@ -133,42 +139,29 @@ export const SortableThreeColumnBlock = ({
       {renderDragHandle(isHovered)}
       
       <div className="flex flex-row space-x-4 justify-between p-2 rounded transition-colors group">
-        {/* 左列 */}
-        <div className="flex-1 min-w-0 border-r pr-2">
+        {/* 左列 - 占据1/4宽度，包含标题（粗体）、时间、地点等 */}
+        <div className="w-1/4 min-w-0 pr-2">
           <SimpleBlock
             id={`${id}-column-0`}
-            content={content[0] || '<p></p>'}
+            content={content[0] || '<div><p><strong>公司/学校名称</strong></p><p>城市, 国家</p><p>起止时间</p></div>'}
             onChange={(content) => {
               console.log(`左列内容更新为: ${content}`);
               handleColumnChange(0, content);
             }}
             type="paragraph"
             showClickedMenu={false}
+            className="text-sm text-gray-700"
           />
         </div>
         
-        {/* 中列 */}
-        <div className="flex-1 min-w-0 border-r pr-2">
+        {/* 右列 - 占据3/4宽度，包含项目标题（粗体）和详情 */}
+        <div className="w-3/4 min-w-0">
           <SimpleBlock
             id={`${id}-column-1`}
-            content={content[1] || '<p></p>'}
-            onChange={(content) => {
-              console.log(`中列内容更新为: ${content}`);
-              handleColumnChange(1, content);
-            }}
-            type="paragraph"
-            showClickedMenu={false}
-          />
-        </div>
-        
-        {/* 右列 */}
-        <div className="flex-1 min-w-0">
-          <SimpleBlock
-            id={`${id}-column-2`}
-            content={content[2] || '<p></p>'}
+            content={content[1] || '<div><p><strong>职位/学位</strong></p><p>详细描述内容...</p></div>'}
             onChange={(content) => {
               console.log(`右列内容更新为: ${content}`);
-              handleColumnChange(2, content);
+              handleColumnChange(1, content);
             }}
             type="paragraph"
             showClickedMenu={false}
