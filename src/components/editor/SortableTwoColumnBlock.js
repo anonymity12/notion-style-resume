@@ -132,35 +132,33 @@ export const SortableTwoColumnBlock = ({
     <div 
       ref={setNodeRef}
       style={style}
-      className={`relative ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
+      className={`relative hover:outline hover:outline-1 hover:outline-gray-200 rounded ${className}`}
+      onMouseOver={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* 渲染拖拽手柄 */}
       {renderDragHandle(isHovered)}
-      
-      <div className="flex flex-row space-x-4 justify-between p-2 rounded transition-colors group">
-        {/* 左列 - 占据1/4宽度，包含标题（粗体）、时间、地点等 */}
-        <div className="w-1/4 min-w-0 pr-2">
+
+      {/* 两列布局 */}
+      <div className="flex flex-row space-x-2 justify-between p-1 rounded transition-colors group">
+        {/* 左侧列 - 占比1 */}
+        <div className="w-1/4 min-w-0 border-r pr-1">
           <SimpleBlock
             id={`${id}-column-0`}
-            content={content[0] || '<div><p><strong>公司/学校名称</strong></p><p>城市, 国家</p><p>起止时间</p></div>'}
+            content={content[0] || '<p></p>'}
             onChange={(content) => {
-              console.log(`左列内容更新为: ${content}`);
               handleColumnChange(0, content);
             }}
             type="paragraph"
             showClickedMenu={false}
-            className="text-sm text-gray-700"
           />
         </div>
-        
-        {/* 右列 - 占据3/4宽度，包含项目标题（粗体）和详情 */}
+        {/* 右侧列 - 占比3 */}
         <div className="w-3/4 min-w-0">
           <SimpleBlock
             id={`${id}-column-1`}
-            content={content[1] || '<div><p><strong>职位/学位</strong></p><p>详细描述内容...</p></div>'}
+            content={content[1] || '<p></p>'}
             onChange={(content) => {
-              console.log(`右列内容更新为: ${content}`);
               handleColumnChange(1, content);
             }}
             type="paragraph"

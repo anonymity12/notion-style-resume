@@ -28,3 +28,44 @@ body {
   pointer-events: none;
   height: 0;
 }
+
+/* Resume specific styles */
+.resume-font {
+  font-family: 'Garamond', 'Times New Roman', serif;
+}
+
+.resume-content {
+  font-family: 'Garamond', 'Times New Roman', serif;
+  line-height: 1.3;
+}
+
+.resume-content h1 {
+  font-family: 'Garamond', 'Times New Roman', serif;
+  font-weight: 600;
+}
+
+.resume-content p {
+  margin: 2pt 0;
+}
+
+/* Print styles for resume */
+@media print {
+  .resume-content {
+    padding: 10mm;
+    font-size: 10pt;
+    line-height: 1.2;
+  }
+  
+  .resume-content h1 {
+    font-size: 12pt;
+    margin: 2pt 0;
+  }
+  
+  .resume-content p {
+    margin: 1pt 0;
+  }
+  
+  .resume-debug, .print-controls, .drag-handle {
+    display: none !important;
+  }
+}

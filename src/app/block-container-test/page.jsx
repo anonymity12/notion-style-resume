@@ -98,26 +98,49 @@ export default function BlockContainerTest() {
 
   return (
     <div className="max-w-4xl mx-auto my-8 p-4">
+      <style jsx global>{`
+        .resume-container {
+          font-family: 'Garamond', 'Times New Roman', serif;
+          line-height: 1.3;
+        }
+        .resume-container h1 {
+          font-family: 'Garamond', 'Times New Roman', serif;
+          font-weight: 600;
+        }
+        .resume-container p {
+          margin: 2pt 0;
+        }
+        @media print {
+          .resume-container {
+            padding: 10mm;
+            font-size: 10pt;
+            line-height: 1.2;
+          }
+          .resume-debug {
+            display: none;
+          }
+        }
+      `}</style>
       
+      <h1 className="text-2xl font-bold mb-6">简历 演示</h1>
+      <p className="mb-4 text-gray-600">
+        这个页面展示了新的 简历容器 组件，实现了拖拽、嵌套和不同布局类型。
+        可以尝试拖拽块、编辑内容和添加新块。
+      </p>
       
-      <div className="bg-white border rounded-lg p-8 shadow">
+      <div className="bg-white border rounded-lg p-8 shadow resume-container">
         <BlockContainer 
           blocks={blocks} 
           onBlocksChange={handleBlocksChange}
         />
       </div>
       
-      <div className="mt-8 p-4 bg-gray-100 rounded-lg">
+      <div className="mt-8 p-4 bg-gray-100 rounded-lg resume-debug">
         <h2 className="text-lg font-semibold mb-2">当前数据结构:</h2>
         <pre className="text-xs overflow-auto max-h-96">
           {JSON.stringify(blocks, null, 2)}
         </pre>
       </div>
-      <h1 className="text-2xl font-bold mb-6">简历 演示</h1>
-      <p className="mb-4 text-gray-600">
-        这个页面展示了新的 简历容器 组件，实现了拖拽、嵌套和不同布局类型。
-        可以尝试拖拽块、编辑内容和添加新块。
-      </p>
     </div>
   );
 }

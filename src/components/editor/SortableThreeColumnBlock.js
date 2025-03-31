@@ -126,20 +126,21 @@ export const SortableThreeColumnBlock = ({
     <div 
       ref={setNodeRef}
       style={style}
-      className={`relative ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
+      className={`relative hover:outline hover:outline-1 hover:outline-gray-200 rounded ${className}`}
+      onMouseOver={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* 渲染拖拽手柄 */}
       {renderDragHandle(isHovered)}
       
-      <div className="flex flex-row space-x-4 justify-between p-2 rounded transition-colors group">
+      {/* 三列布局 */}
+      <div className="flex flex-row space-x-2 justify-between p-1 rounded transition-colors group">
         {/* 左列 */}
-        <div className="flex-1 min-w-0 border-r pr-2">
+        <div className="flex-1 min-w-0 border-r pr-1">
           <SimpleBlock
             id={`${id}-column-0`}
             content={content[0] || '<p></p>'}
             onChange={(content) => {
-              console.log(`左列内容更新为: ${content}`);
               handleColumnChange(0, content);
             }}
             type="paragraph"
@@ -148,12 +149,11 @@ export const SortableThreeColumnBlock = ({
         </div>
         
         {/* 中列 */}
-        <div className="flex-1 min-w-0 border-r pr-2">
+        <div className="flex-1 min-w-0 border-r pr-1">
           <SimpleBlock
             id={`${id}-column-1`}
             content={content[1] || '<p></p>'}
             onChange={(content) => {
-              console.log(`中列内容更新为: ${content}`);
               handleColumnChange(1, content);
             }}
             type="paragraph"
@@ -167,7 +167,6 @@ export const SortableThreeColumnBlock = ({
             id={`${id}-column-2`}
             content={content[2] || '<p></p>'}
             onChange={(content) => {
-              console.log(`右列内容更新为: ${content}`);
               handleColumnChange(2, content);
             }}
             type="paragraph"
