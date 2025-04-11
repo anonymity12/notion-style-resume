@@ -29,7 +29,7 @@ import { toast } from 'sonner';
  * 3. 处理嵌套拖拽逻辑
  * 4. 管理块的增删改
  */
-export const BlockContainer = ({ blocks, onBlocksChange }) => {
+export const BlockContainer = ({ blocks, onBlocksChange, onTextChange }) => {
   // 设置拖拽传感器
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -318,8 +318,9 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
             key={block.id}
             id={block.id}
             content={block.content}
-            onChange={(blockId,newContent) => onChange(blockId, newContent)}
+            onChange={(blockId,newContent) => handleBlockChange(blockId, newContent)}
             onBlockMenuClicked={handleBlockMenuClicked}
+            onTextChange={onTextChange}
           />
         );
       case 'paragraph':
@@ -330,6 +331,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
             content={block.content}
             onChange={(blockId, newContent) => handleBlockChange(blockId, newContent)}
             onBlockMenuClicked={handleBlockMenuClicked}
+            onTextChange={onTextChange}
           />
         );
       case 'three-column':
@@ -356,7 +358,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
         console.warn(`Unknown block type: ${block.type}`);
         return null;
     }
-  }, [handleBlockChange, handleBlockMenuClicked]);
+  }, [handleBlockChange, handleBlockMenuClicked, onTextChange]);
 
   return (
     <DndContext 
@@ -377,6 +379,7 @@ export const BlockContainer = ({ blocks, onBlocksChange }) => {
                 content={headingBlock.content}
                 onChange={(blockId, newContent) => handleBlockChange(blockId, newContent)}
                 onBlockMenuClicked={handleBlockMenuClicked}
+                onTextChange={onTextChange}
               />
               
               {/* 渲染子块 */}

@@ -17,6 +17,7 @@ import * as Popover from '@radix-ui/react-popover';
  * - content: 块的HTML内容
  * - onChange: 内容变更时的回调函数
  * - onBlockMenuClicked: 块上下文菜单被点击后的回调函数
+ * - onTextChange: 文本变更时的回调函数
  * - type: 块类型（'heading' 或 'paragraph'）
  * - isDark: 是否处于暗色模式
  * - children: 子组件
@@ -27,6 +28,7 @@ export const SortableBlock = ({
   content,
   onChange,
   onBlockMenuClicked,
+  onTextChange,
   type = 'paragraph',
   isDark = false,
   children,
@@ -147,6 +149,7 @@ export const SortableBlock = ({
           }
         }}
         onBlockMenuClicked={onBlockMenuClicked}
+        onTextChange={onTextChange}
         type={type}
         className={className}
         showClickedMenu={true}
@@ -168,6 +171,7 @@ export const SortableHeadingBlock = ({
   content,
   onChange,
   onBlockMenuClicked,
+  onTextChange,
   className = '',
 }) => {
   return (
@@ -176,6 +180,7 @@ export const SortableHeadingBlock = ({
       content={content}
       onChange={(blockId, newContent) => onChange(blockId, newContent)}
       onBlockMenuClicked={onBlockMenuClicked}
+      onTextChange={onTextChange}
       type="heading"
       className={`mb-4 ${className}`}
     />
@@ -192,6 +197,7 @@ export const SortableParagraphBlock = ({
   content,
   onChange,
   onBlockMenuClicked,
+  onTextChange,
   className = '',
 }) => {
   return (
@@ -200,6 +206,7 @@ export const SortableParagraphBlock = ({
       content={content}
       onChange={(blockId, newContent) => onChange(blockId, newContent)}
       onBlockMenuClicked={onBlockMenuClicked}
+      onTextChange={onTextChange}
       type="paragraph"
       className={className}
     />

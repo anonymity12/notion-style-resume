@@ -99,7 +99,8 @@ export const SimpleBlock = ({
   onBlockMenuClicked,
   type = 'paragraph',
   className = '',
-  renderDragHandle = null
+  renderDragHandle = null,
+  onTextChange = null
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showFormatMenu, setShowFormatMenu] = useState(false);
@@ -139,6 +140,12 @@ export const SimpleBlock = ({
           // 不传递id，只传递内容，遵循明确的接口约定
           onChange(htmlContent);
         }
+        
+        // Extract plain text and pass it to parent if onTextChange is provided
+        if (onTextChange) {
+          const plainText = editor.getText();
+          onTextChange(id, plainText);
+        }
       });
     }
     return () => {
@@ -146,7 +153,7 @@ export const SimpleBlock = ({
         editor.off('update');
       }
     };
-  }, [editor, onChange]);
+  }, [editor, onChange, onTextChange, id]);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
