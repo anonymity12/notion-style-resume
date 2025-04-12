@@ -2,70 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { BlockContainer } from '../../components/editor/BlockContainer';
+import { ResumeProvider, useResume } from '../../context/ResumeContext';
 
-export default function BlockContainerTest() {
+// Main content component that uses the resume context
+function BlockContainerContent() {
   const [mounted, setMounted] = useState(false);
+  const { resumeData, updateTextContent } = useResume();
   
-  // Make resumeData stateful
-  const [resumeData, setResumeData] = useState({
-    userInfo: {
-      firstName: "张",
-      lastName: "三",
-      headLine: "资深前端工程师",
-      phoneNumber: "188-8888-8888",
-      email: "zhangsan@example.com",
-      linkedInURL: "linkedin.com/in/zhangsan",
-      websiteOrOtherProfileURL: "zhangsan.dev"
-    },
-    education: [
-      {
-        universityName: "北京大学",
-        universityLocation: "北京, 中国",
-        universityMajor: "计算机科学与技术",
-        degree: "本科学士",
-        fromDate: "2018",
-        toDate: "2022",
-        gpa: "3.8/4.0",
-        courses: "数据结构、算法设计、操作系统、计算机网络"
-      }
-    ],
-    workExperience: [
-      {
-        companyName: "腾讯",
-        jobTitle: "前端工程师",
-        city: "深圳",
-        country: "中国",
-        fromDate: "2023-01",
-        toDate: "",
-        isPresent: true,
-        description: "优化前端性能，页面加载速度提升30%"
-      }
-    ],
-  });
-  
-  // Handle text changes from the editor blocks
-  const handleTextChange = (blockId, plainText) => {
-    console.log(`Text changed in block ${blockId}:`, plainText);
-    
-    // Update resumeData based on blockId
-    switch (blockId) {
-      case 'user-headline':
-        setResumeData(prev => ({
-          ...prev,
-          userInfo: {
-            ...prev.userInfo,
-            headLine: plainText
-          }
-        }));
-        console.log('Updated headLine:', plainText);
-        break;
-      // Add more cases for other blocks as needed
-      default:
-        // Do nothing for unrecognized block IDs
-        break;
-    }
-  };
-
   // When resumeData changes, update the templateBlocks
   const [templateBlocks, setTemplateBlocks] = useState([]);
   
@@ -165,7 +108,7 @@ export default function BlockContainerTest() {
         <BlockContainer 
           blocks={templateBlocks} 
           onBlocksChange={handleBlocksChange} 
-          onTextChange={handleTextChange}
+          onTextChange={updateTextContent}
         />
       </div>
       
@@ -176,5 +119,14 @@ export default function BlockContainerTest() {
         </pre>
       </div>
     </div>
+  );
+}
+
+// Wrapper component that provides the ResumeContext
+export default function BlockContainerTest() {
+  return (
+    <ResumeProvider>
+      <BlockContainerContent />
+    </ResumeProvider>
   );
 }
