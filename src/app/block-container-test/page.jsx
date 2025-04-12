@@ -2,11 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { BlockContainer } from '../../components/editor/BlockContainer';
-import TemplateBlockRenderer from '../../components/TemplateBlockRenderer';
 
 export default function BlockContainerTest() {
   const [mounted, setMounted] = useState(false);
-  const [viewMode, setViewMode] = useState('edit'); // 'edit' or 'preview'
   
   // Make resumeData stateful
   const [resumeData, setResumeData] = useState({
@@ -164,12 +162,12 @@ export default function BlockContainerTest() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="bg-white p-6 rounded-lg shadow-lg">
-          <BlockContainer 
-            blocks={templateBlocks} 
-            onBlocksChange={handleBlocksChange} 
-            onTextChange={handleTextChange}
-          />
-        </div>
+        <BlockContainer 
+          blocks={templateBlocks} 
+          onBlocksChange={handleBlocksChange} 
+          onTextChange={handleTextChange}
+        />
+      </div>
       
       <div className="mt-6 p-4 bg-gray-100 rounded-lg">
         <h3 className="font-bold mb-2">当前数据 (实时更新):</h3>
