@@ -163,37 +163,13 @@ export default function BlockContainerTest() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="mb-6 flex gap-4">
-        <h1 className="text-2xl font-bold">简历编辑器</h1>
-        <div className="flex gap-2">
-          <button
-            className={`px-4 py-1 rounded ${viewMode === 'edit' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => setViewMode('edit')}
-          >
-            编辑模式
-          </button>
-          <button
-            className={`px-4 py-1 rounded ${viewMode === 'preview' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => setViewMode('preview')}
-          >
-            预览模式
-          </button>
-        </div>
-      </div>
-      
-      {viewMode === 'edit' ? (
-        <div className="bg-white p-6 rounded-lg shadow-lg">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
           <BlockContainer 
             blocks={templateBlocks} 
             onBlocksChange={handleBlocksChange} 
             onTextChange={handleTextChange}
           />
         </div>
-      ) : (
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <TemplateBlockRenderer blocks={templateBlocks} />
-        </div>
-      )}
       
       <div className="mt-6 p-4 bg-gray-100 rounded-lg">
         <h3 className="font-bold mb-2">当前数据 (实时更新):</h3>
