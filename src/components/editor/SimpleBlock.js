@@ -122,15 +122,15 @@ export const SimpleBlock = ({
   });
 
   // 当content props变化时更新编辑器内容
-  useEffect(() => {
-    if (editor && content) {
-      // 只有当内容真正变化时才更新，避免循环
-      if (editor.getHTML() !== content) {
-        console.log(`更新编辑器内容: ${id}`, content);
-        editor.commands.setContent(content);
-      }
-    }
-  }, [editor, content, id]);
+  // useEffect(() => {
+  //   if (editor && content) {
+  //     // 只有当内容真正变化时才更新，避免循环
+  //     if (editor.getHTML() !== content) {
+  //       console.log(`更新编辑器内容: ${id}`, content);
+  //       editor.commands.setContent(content);
+  //     }
+  //   }
+  // }, [editor, content, id]);
 
   useEffect(() => {
     if (editor) {
