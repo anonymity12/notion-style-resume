@@ -11,7 +11,9 @@ const initialResumeData = {
     phoneNumber: "188-8008-8888",
     email: "zhangsan@example.com",
     linkedInURL: "linkedin.com/in/zhangsan",
-    websiteOrOtherProfileURL: "zhangsan.dev"
+    websiteOrOtherProfileURL: "zhangsan.dev",
+    location: "北京, 中国",
+    githubURL: "github.com/zhangsan"
   },
   education: [
     {
