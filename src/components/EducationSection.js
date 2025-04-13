@@ -88,7 +88,7 @@ export const EducationSection = () => {
       {isEditing ? (
         <div className="space-y-6">
           {editData.map((edu, index) => (
-            <div key={index} className="border border-gray-200 p-4 rounded-md relative">
+            <div key={index} className="border border-gray-200 p-4 rounded-md relative mb-4">
               <button 
                 onClick={() => removeEducation(index)} 
                 className="absolute right-2 top-2 text-red-500 hover:text-red-700"
@@ -96,88 +96,101 @@ export const EducationSection = () => {
                 <X className="w-4 h-4" />
               </button>
               
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">学校名称</label>
-                  <input
-                    type="text"
-                    value={edu.universityName}
-                    onChange={(e) => handleChange(index, 'universityName', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                  />
+              {/* University and Date Row - Justified (same as viewing mode) */}
+              <div className="flex justify-between items-center mb-3">
+                <div className="w-2/3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">学校名称, 专业</label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      value={edu.universityName}
+                      onChange={(e) => handleChange(index, 'universityName', e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                      placeholder="学校名称"
+                    />
+                    <span>,</span>
+                    <input
+                      type="text"
+                      value={edu.universityMajor}
+                      onChange={(e) => handleChange(index, 'universityMajor', e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                      placeholder="专业"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">位置</label>
-                  <input
-                    type="text"
-                    value={edu.universityLocation}
-                    onChange={(e) => handleChange(index, 'universityLocation', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">专业</label>
-                  <input
-                    type="text"
-                    value={edu.universityMajor}
-                    onChange={(e) => handleChange(index, 'universityMajor', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">学位</label>
-                  <input
-                    type="text"
-                    value={edu.degree}
-                    onChange={(e) => handleChange(index, 'degree', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">起始日期</label>
-                  <input
-                    type="text"
-                    value={edu.fromDate}
-                    onChange={(e) => handleChange(index, 'fromDate', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
-                  <input
-                    type="text"
-                    value={edu.toDate}
-                    onChange={(e) => handleChange(index, 'toDate', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                  />
+                <div className="w-1/3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">起止日期</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={edu.fromDate}
+                      onChange={(e) => handleChange(index, 'fromDate', e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                      placeholder="开始"
+                    />
+                    <span>–</span>
+                    <input
+                      type="text"
+                      value={edu.toDate}
+                      onChange={(e) => handleChange(index, 'toDate', e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                      placeholder="结束"
+                    />
+                  </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">GPA</label>
-                  <input
-                    type="text"
-                    value={edu.gpa}
-                    onChange={(e) => handleChange(index, 'gpa', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">课程</label>
-                  <input
-                    type="text"
-                    value={edu.courses}
-                    onChange={(e) => handleChange(index, 'courses', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
+              {/* Bullet Points - mimic the list in viewing mode */}
+              <div className="pl-5">
+                <ul className="list-disc space-y-3">
+                  <li>
+                    <div className="flex items-center gap-2">
+                      <span className="min-w-[60px]">GPA:</span>
+                      <input
+                        type="text"
+                        value={edu.gpa}
+                        onChange={(e) => handleChange(index, 'gpa', e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                        placeholder="GPA"
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <div className="flex items-center gap-2">
+                      <span className="min-w-[60px]">学位:</span>
+                      <input
+                        type="text"
+                        value={edu.degree}
+                        onChange={(e) => handleChange(index, 'degree', e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                        placeholder="学位"
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <div className="flex items-start gap-2">
+                      <span className="min-w-[60px] mt-2">课程:</span>
+                      <input
+                        type="text"
+                        value={edu.courses}
+                        onChange={(e) => handleChange(index, 'courses', e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                        placeholder="课程"
+                      />
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">位置</label>
+                <input
+                  type="text"
+                  value={edu.universityLocation}
+                  onChange={(e) => handleChange(index, 'universityLocation', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
+                  placeholder="位置"
+                />
               </div>
             </div>
           ))}
