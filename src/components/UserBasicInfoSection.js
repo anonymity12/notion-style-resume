@@ -2,10 +2,9 @@
 
 import React, { useState } from 'react';
 import { useResume } from '../context/ResumeContext';
-import { Pencil, Check, GripVertical } from 'lucide-react';
-import * as Popover from '@radix-ui/react-popover';
+import { Pencil, Check } from 'lucide-react';
 
-export const UserBasicInfoSection = () => {
+export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction }) => {
   const { resumeData, updateResumeField } = useResume();
   const { userInfo } = resumeData;
   
@@ -45,47 +44,28 @@ export const UserBasicInfoSection = () => {
     }
   };
   
+  // 如果定义了onMenuAction，调用它来通知外部组件状态变化
+  React.useEffect(() => {
+    if (onMenuAction) {
+      onMenuAction({ isEditing, toggleEditing });
+    }
+  }, [isEditing]);
+  
   return (
     <div className="w-full flex justify-center my-8 relative">
-      {/* Section DragHandle with Menu */}
-      <div className="relative">
-        <Popover.Root>
-          <Popover.Trigger asChild>
-            <div 
-              className="absolute left-0 top-1/2 -translate-y-1/2 -ml-6 hover:opacity-100 opacity-50 transition-opacity cursor-pointer z-10"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <GripVertical className="w-4 h-4 text-gray-400" />
-            </div>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content 
-              className="bg-white rounded-lg shadow-lg p-2 w-48 flex flex-col gap-1 z-50"
-              sideOffset={5}
-            >
-              <button
-                className="flex items-center gap-2 px-2 py-1 rounded text-left hover:bg-gray-100"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleEditing();
-                }}
-              >
-                {isEditing ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    <span>保存个人信息</span>
-                  </>
-                ) : (
-                  <>
-                    <Pencil className="w-4 h-4" />
-                    <span>编辑个人信息</span>
-                  </>
-                )}
-              </button>
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
-      </div>
+      {/* Edit/Save Button - Only show when hideDefaultControls is false */}
+      {!hideDefaultControls && (
+        <button 
+          onClick={toggleEditing}
+          className="absolute right-0 top-0 p-2 text-gray-500 hover:text-blue-500 transition-colors"
+        >
+          {isEditing ? (
+            <Check className="w-5 h-5" />
+          ) : (
+            <Pencil className="w-5 h-5" />
+          )}
+        </button>
+      )}
       
       <div className="text-center max-w-3xl w-full">
         {/* User's name - large and bold */}
