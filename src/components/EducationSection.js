@@ -91,7 +91,6 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                   value={educationItems}
                   onChange={handleFieldChange}
                 />
-                {edu.universityMajor && ", "}
                 <EditableField 
                   index={index} 
                   field="universityMajor" 
