@@ -171,6 +171,14 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                 onChange={handleFieldChange}
               />
             </div>
+            
+            {/* Add Education Button */}
+            <button 
+              onClick={addEducation} 
+              className="absolute right-2 bottom-2 text-gray-400 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
           </div>
         ))}
       </div>
