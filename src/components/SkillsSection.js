@@ -25,20 +25,20 @@ export const SkillsSection = ({ hideDefaultControls = false, onMenuAction }) => 
   };
   
   return (
-    <div className="w-full max-w-4xl mx-auto my-2 relative">
+    <div className="w-full max-w-4xl mx-auto my-1 relative">
       {/* Section Title */}
-      <h2 className="text-2xl font-bold mb-1">Skills</h2>
+      <h2 className="text-2xl font-bold mb-0.5">Skills</h2>
       
       {/* Divider Line */}
-      <hr className="border-gray-300 mb-2" />
+      <hr className="border-gray-300 mb-1" />
       
       {/* Skills Input */}
-      <div className="bg-white hover:bg-gray-50 p-2 rounded-md">
+      <div className="bg-white hover:bg-gray-50 p-1 rounded-md">
         <textarea
           value={skillsText}
           onChange={handleSkillsChange}
           placeholder="输入技能，用逗号分隔（例如：前端开发, React.js, TypeScript）"
-          className="w-full p-1 border-none focus:outline-none focus:ring-0 min-h-[40px] resize-y"
+          className="w-full p-0.5 border-none focus:outline-none focus:ring-0 min-h-[35px] resize-y"
         />
       </div>
     </div>

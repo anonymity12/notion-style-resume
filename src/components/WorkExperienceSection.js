@@ -74,17 +74,17 @@ export const WorkExperienceSection = ({ hideDefaultControls = false, onMenuActio
   };
   
   return (
-    <div className="w-full max-w-4xl mx-auto my-2 relative">
+    <div className="w-full max-w-4xl mx-auto my-1 relative">
       {/* Section Title */}
-      <h2 className="text-2xl font-bold mb-1">Work Experience</h2>
+      <h2 className="text-2xl font-bold mb-0.5">Work Experience</h2>
       
       {/* Divider Line */}
-      <hr className="border-gray-300 mb-2" />
+      <hr className="border-gray-300 mb-1" />
       
       {/* Work Experience Items */}
-      <div className="space-y-3">
+      <div className="space-y-1">
         {workItems.map((work, index) => (
-          <div key={index} className="relative bg-white hover:bg-gray-50 p-2 rounded-md group">
+          <div key={index} className="relative bg-white hover:bg-gray-50 p-1 rounded-md group">
             <button 
               onClick={() => removeWorkExperience(index)} 
               className="absolute right-2 top-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -93,7 +93,7 @@ export const WorkExperienceSection = ({ hideDefaultControls = false, onMenuActio
             </button>
             
             {/* Company and Date Row - 三列均分布局 */}
-            <div className="grid grid-cols-3 gap-2 items-center mb-1">
+            <div className="grid grid-cols-3 gap-1 items-center mb-0.5">
               {/* 公司名称 - 左侧 */}
               <div className="text-left">
                 <EditableField 
@@ -145,7 +145,7 @@ export const WorkExperienceSection = ({ hideDefaultControls = false, onMenuActio
             </div>
             
             {/* Location Row */}
-            <div className="text-sm text-gray-600 mb-1">
+            <div className="text-sm text-gray-600 mb-0.5">
               <span className="mr-1">位置:</span>
               <EditableField 
                 index={index} 
@@ -167,7 +167,7 @@ export const WorkExperienceSection = ({ hideDefaultControls = false, onMenuActio
             </div>
             
             {/* 当前工作复选框 */}
-            <div className="flex justify-end mb-1">
+            <div className="flex justify-end mb-0.5">
               <input 
                 type="checkbox" 
                 id={`isPresent-${index}`} 
@@ -179,7 +179,7 @@ export const WorkExperienceSection = ({ hideDefaultControls = false, onMenuActio
             </div>
             
             {/* Description */}
-            <div className="mt-1">
+            <div className="mt-0.5">
               <EditableField 
                 index={index} 
                 field="description" 
@@ -205,7 +205,7 @@ export const WorkExperienceSection = ({ hideDefaultControls = false, onMenuActio
       {!hideDefaultControls && workItems.length === 0 && (
         <button 
           onClick={addWorkExperience}
-          className="flex items-center mt-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100"
+          className="flex items-center mt-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100"
         >
           <Plus className="w-4 h-4 mr-2" /> 添加工作经历
         </button>
