@@ -17,6 +17,7 @@ import {
 
 import SortableUserInfoBlock from './SortableUserInfoBlock';
 import SortableEducationBlock from './SortableEducationBlock';
+import SortableWorkExperienceBlock from './SortableWorkExperienceBlock';
 import { useResume } from '../../context/ResumeContext';
 
 /**
@@ -30,7 +31,8 @@ export const ResumeBlockContainer = () => {
   // 定义初始的简历块ID和类型
   const initialBlocks = [
     { id: 'user-info-block', type: 'user-info' },
-    { id: 'education-block', type: 'education' }
+    { id: 'education-block', type: 'education' },
+    { id: 'work-experience-block', type: 'work-experience' }
   ];
   
   // 管理块的顺序
@@ -67,6 +69,8 @@ export const ResumeBlockContainer = () => {
         return <SortableUserInfoBlock key={block.id} id={block.id} />;
       case 'education':
         return <SortableEducationBlock key={block.id} id={block.id} />;
+      case 'work-experience':
+        return <SortableWorkExperienceBlock key={block.id} id={block.id} />;
       default:
         return null;
     }
