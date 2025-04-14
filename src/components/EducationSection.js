@@ -149,13 +149,14 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
               
               {/* Courses if available */}
               <li>
-                <div className="flex items-baseline">
+                <div className="flex items-baseline w-full">
                   <EditableField 
                     index={index} 
                     field="courses" 
                     placeholder="课程"
                     value={educationItems}
                     onChange={handleFieldChange}
+                    className="w-full"
                   />
                 </div>
               </li>
