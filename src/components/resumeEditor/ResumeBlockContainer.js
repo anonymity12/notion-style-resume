@@ -19,6 +19,7 @@ import SortableUserInfoBlock from './SortableUserInfoBlock';
 import SortableEducationBlock from './SortableEducationBlock';
 import SortableWorkExperienceBlock from './SortableWorkExperienceBlock';
 import SortableProjectsBlock from './SortableProjectsBlock';
+import SortableAchievementsBlock from './SortableAchievementsBlock';
 import { useResume } from '../../context/ResumeContext';
 
 /**
@@ -34,7 +35,8 @@ export const ResumeBlockContainer = () => {
     { id: 'user-info-block', type: 'user-info' },
     { id: 'education-block', type: 'education' },
     { id: 'work-experience-block', type: 'work-experience' },
-    { id: 'projects-block', type: 'projects' }
+    { id: 'projects-block', type: 'projects' },
+    { id: 'achievements-block', type: 'achievements' }
   ];
   
   // 管理块的顺序
@@ -75,6 +77,8 @@ export const ResumeBlockContainer = () => {
         return <SortableWorkExperienceBlock key={block.id} id={block.id} />;
       case 'projects':
         return <SortableProjectsBlock key={block.id} id={block.id} />;
+      case 'achievements':
+        return <SortableAchievementsBlock key={block.id} id={block.id} />;
       default:
         return null;
     }
