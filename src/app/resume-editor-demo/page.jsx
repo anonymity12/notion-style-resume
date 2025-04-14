@@ -3,6 +3,7 @@
 import React from 'react';
 import { ResumeProvider } from '../../context/ResumeContext';
 import ResumeBlockContainer from '../../components/resumeEditor/ResumeBlockContainer';
+import DataDisplay from '../../components/DataDisplay'; // Add this line
 
 export default function ResumeEditorDemo() {
   return (
@@ -17,6 +18,14 @@ export default function ResumeEditorDemo() {
             </div>
             
             <ResumeBlockContainer />
+          </div>
+          
+          {/* 显示当前 resumeData JSON 内容 */}
+          <div className="mt-8 bg-gray-100 p-4 rounded-lg">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-semibold">当前简历数据：</h3>
+              <DataDisplay />
+            </div>
           </div>
           
           <div className="mt-8 text-center text-sm text-gray-500">

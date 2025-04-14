@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useResume } from '../context/ResumeContext';
 import { Plus, X } from 'lucide-react';
+import EditableField from './common/EditableField';
 
 export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) => {
   const { resumeData, updateResumeField } = useResume();
@@ -60,19 +61,6 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
     updateResumeField('education', newItems);
   };
   
-  // Editable field component
-  const EditableField = ({ index, field, placeholder, className = '' }) => {
-    return (
-      <input
-        type="text"
-        value={educationItems[index][field] || ''}
-        onChange={(e) => handleFieldChange(index, field, e.target.value)}
-        placeholder={placeholder}
-        className={`bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 outline-none ${className}`}
-      />
-    );
-  };
-  
   return (
     <div className="w-full max-w-4xl mx-auto my-6 relative">
       {/* Section Title */}
@@ -100,6 +88,8 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                   field="universityName" 
                   placeholder="学校名称" 
                   className="inline-block mr-1"
+                  value={educationItems}
+                  onChange={handleFieldChange}
                 />
                 {edu.universityMajor && ", "}
                 <EditableField 
@@ -107,6 +97,8 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                   field="universityMajor" 
                   placeholder="专业" 
                   className="inline-block"
+                  value={educationItems}
+                  onChange={handleFieldChange}
                 />
               </div>
               <div className="text-right flex items-center space-x-1">
@@ -115,6 +107,8 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                   field="fromDate" 
                   placeholder="起始年份" 
                   className="inline-block w-16 text-center"
+                  value={educationItems}
+                  onChange={handleFieldChange}
                 />
                 <span>–</span>
                 <EditableField 
@@ -122,6 +116,8 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                   field="toDate" 
                   placeholder="结束年份" 
                   className="inline-block w-16 text-center"
+                  value={educationItems}
+                  onChange={handleFieldChange}
                 />
               </div>
             </div>
@@ -135,7 +131,9 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                   <EditableField 
                     index={index} 
                     field="gpa" 
-                    placeholder="GPA" 
+                    placeholder="GPA"
+                    value={educationItems}
+                    onChange={handleFieldChange}
                   />
                 </div>
               </li>
@@ -145,7 +143,9 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                 <EditableField 
                   index={index} 
                   field="degree" 
-                  placeholder="学位" 
+                  placeholder="学位"
+                  value={educationItems}
+                  onChange={handleFieldChange}
                 />
               </li>
               
@@ -156,7 +156,9 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                   <EditableField 
                     index={index} 
                     field="courses" 
-                    placeholder="课程" 
+                    placeholder="课程"
+                    value={educationItems}
+                    onChange={handleFieldChange}
                   />
                 </div>
               </li>
@@ -167,7 +169,9 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
               <EditableField 
                 index={index} 
                 field="universityLocation" 
-                placeholder="位置" 
+                placeholder="位置"
+                value={educationItems}
+                onChange={handleFieldChange}
               />
             </div>
           </div>

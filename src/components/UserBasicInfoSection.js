@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useResume } from '../context/ResumeContext';
+import EditableField from './common/EditableField';
 
 export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction }) => {
   const { resumeData, updateResumeField } = useResume();
@@ -51,24 +52,6 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
     }
   };
   
-  // Editable field component
-  const EditableField = ({ field, placeholder, className = '' }) => {
-    // Use ref to maintain input reference
-    const inputRef = useRef(null);
-    
-    return (
-      <input
-        ref={inputRef}
-        type="text"
-        value={userInfoState[field] || ''}
-        onChange={(e) => handleFieldChange(field, e.target.value)}
-        //onBlur={() => handleFieldBlur(field)}
-        placeholder={placeholder}
-        className={`bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 outline-none text-center ${className}`}
-      />
-    );
-  };
-  
   return (
     <div className="w-full flex justify-center my-8 relative">
       <div className="text-center max-w-3xl w-full">
@@ -77,12 +60,18 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
           <EditableField 
             field="firstName" 
             placeholder="名" 
-            className="text-4xl font-bold"
+            className="text-4xl font-bold text-center"
+            value={userInfoState}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
           />
           <EditableField 
             field="lastName" 
             placeholder="姓" 
-            className="text-4xl font-bold"
+            className="text-4xl font-bold text-center"
+            value={userInfoState}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
           />
         </div>
         
@@ -91,7 +80,10 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
           <EditableField 
             field="location" 
             placeholder="所在地" 
-            className="inline-block"
+            className="inline-block text-center"
+            value={userInfoState}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
           />
           
           {userInfoState.location && userInfoState.email && (
@@ -101,7 +93,10 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
           <EditableField 
             field="email" 
             placeholder="邮箱" 
-            className="inline-block"
+            className="inline-block text-center"
+            value={userInfoState}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
           />
           
           {userInfoState.email && userInfoState.phoneNumber && (
@@ -111,7 +106,10 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
           <EditableField 
             field="phoneNumber" 
             placeholder="电话" 
-            className="inline-block"
+            className="inline-block text-center"
+            value={userInfoState}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
           />
           
           {userInfoState.phoneNumber && userInfoState.websiteOrOtherProfileURL && (
@@ -121,7 +119,10 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
           <EditableField 
             field="websiteOrOtherProfileURL" 
             placeholder="个人网站" 
-            className="inline-block"
+            className="inline-block text-center"
+            value={userInfoState}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
           />
         </div>
         
@@ -130,7 +131,10 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
           <EditableField 
             field="linkedInURL" 
             placeholder="LinkedIn" 
-            className="inline-block"
+            className="inline-block text-center"
+            value={userInfoState}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
           />
           
           {userInfoState.linkedInURL && userInfoState.githubURL && (
@@ -140,7 +144,10 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
           <EditableField 
             field="githubURL" 
             placeholder="GitHub" 
-            className="inline-block"
+            className="inline-block text-center"
+            value={userInfoState}
+            onChange={handleFieldChange}
+            onBlur={handleFieldBlur}
           />
         </div>
       </div>
