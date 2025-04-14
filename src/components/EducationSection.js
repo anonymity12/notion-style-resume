@@ -95,7 +95,7 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                   index={index} 
                   field="universityMajor" 
                   placeholder="专业" 
-                  className="inline-block"
+                  className="inline-block text-center"
                   value={educationItems}
                   onChange={handleFieldChange}
                 />
