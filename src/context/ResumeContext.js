@@ -39,6 +39,33 @@ const initialResumeData = {
       description: "优化前端性能，页面加载速度提升30%"
     }
   ],
+  skills: [
+    "前端开发",
+    "React.js",
+    "TypeScript",
+    "Node.js",
+    "Express.js",
+    "数据库设计",
+    "版本控制"
+  ],
+  projects: [
+    {
+      title: "项目名称",
+      description: "项目描述",
+      fromDate: "2023-01",
+      toDate: "2023-12",
+      isPresent: true
+    }
+  ],
+  achievements: [
+    {
+      title: "成就名称",
+      description: "成就描述",
+      fromDate: "2023-01",
+      toDate: "2023-12",
+      isPresent: true
+    }
+  ]
 };
 
 // Create context
