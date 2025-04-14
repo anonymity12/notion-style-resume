@@ -62,17 +62,17 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
   };
   
   return (
-    <div className="w-full max-w-4xl mx-auto my-6 relative">
+    <div className="w-full max-w-4xl mx-auto my-2 relative">
       {/* Section Title */}
       <h2 className="text-2xl font-bold mb-1">Education</h2>
       
       {/* Divider Line */}
-      <hr className="border-gray-300 mb-3" />
+      <hr className="border-gray-300 mb-2" />
       
       {/* Education Items */}
-      <div className="space-y-6">
+      <div className="space-y-3">
         {educationItems.map((edu, index) => (
-          <div key={index} className="relative bg-white hover:bg-gray-50 p-4 rounded-md group">
+          <div key={index} className="relative bg-white hover:bg-gray-50 p-2 rounded-md group">
             <button 
               onClick={() => removeEducation(index)} 
               className="absolute right-2 top-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -170,7 +170,7 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
             </ul>
             
             {/* Location if available */}
-            <div className="mt-2 text-sm text-gray-600">
+            <div className="mt-1 text-sm text-gray-600">
               <EditableField 
                 index={index} 
                 field="universityLocation" 

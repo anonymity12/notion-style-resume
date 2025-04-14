@@ -59,17 +59,17 @@ export const AchievementsSection = ({ hideDefaultControls = false, onMenuAction 
   };
   
   return (
-    <div className="w-full max-w-4xl mx-auto my-6 relative">
+    <div className="w-full max-w-4xl mx-auto my-2 relative">
       {/* Section Title */}
       <h2 className="text-2xl font-bold mb-1">Achievements</h2>
       
       {/* Divider Line */}
-      <hr className="border-gray-300 mb-3" />
+      <hr className="border-gray-300 mb-2" />
       
       {/* Achievement Items */}
-      <div className="space-y-6">
+      <div className="space-y-3">
         {achievementItems.map((achievement, index) => (
-          <div key={index} className="relative bg-white hover:bg-gray-50 p-4 rounded-md group">
+          <div key={index} className="relative bg-white hover:bg-gray-50 p-2 rounded-md group">
             <button 
               onClick={() => removeAchievement(index)} 
               className="absolute right-2 top-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -119,7 +119,7 @@ export const AchievementsSection = ({ hideDefaultControls = false, onMenuAction 
             </div>
             
             {/* Description */}
-            <div className="mt-2">
+            <div className="mt-1">
               <EditableField 
                 index={index} 
                 field="description" 
@@ -145,7 +145,7 @@ export const AchievementsSection = ({ hideDefaultControls = false, onMenuAction 
       {!hideDefaultControls && achievementItems.length === 0 && (
         <button 
           onClick={addAchievement}
-          className="flex items-center mt-4 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100"
+          className="flex items-center mt-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100"
         >
           <Plus className="w-4 h-4 mr-2" /> 添加成就经历
         </button>
