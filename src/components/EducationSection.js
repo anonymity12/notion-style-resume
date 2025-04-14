@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { useResume } from '../context/ResumeContext';
-import { Pencil, Check, Plus, X } from 'lucide-react';
+import { Pencil, Check, Plus, X, GripVertical } from 'lucide-react';
+import * as Popover from '@radix-ui/react-popover';
 
 export const EducationSection = () => {
   const { resumeData, updateResumeField } = useResume();
@@ -66,17 +67,58 @@ export const EducationSection = () => {
   
   return (
     <div className="w-full max-w-4xl mx-auto my-6 relative">
-      {/* Edit/Save Button */}
-      <button 
-        onClick={toggleEditing}
-        className="absolute right-0 top-0 p-2 text-gray-500 hover:text-blue-500 transition-colors"
-      >
-        {isEditing ? (
-          <Check className="w-5 h-5" />
-        ) : (
-          <Pencil className="w-5 h-5" />
-        )}
-      </button>
+      {/* Section DragHandle with Menu */}
+      <div className="relative">
+        <Popover.Root>
+          <Popover.Trigger asChild>
+            <div 
+              className="absolute left-0 top-1/2 -translate-y-1/2 -ml-6 hover:opacity-100 opacity-50 transition-opacity cursor-pointer z-10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <GripVertical className="w-4 h-4 text-gray-400" />
+            </div>
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Content 
+              className="bg-white rounded-lg shadow-lg p-2 w-48 flex flex-col gap-1 z-50"
+              sideOffset={5}
+            >
+              <button
+                className="flex items-center gap-2 px-2 py-1 rounded text-left hover:bg-gray-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleEditing();
+                }}
+              >
+                {isEditing ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>保存教育经历</span>
+                  </>
+                ) : (
+                  <>
+                    <Pencil className="w-4 h-4" />
+                    <span>编辑教育经历</span>
+                  </>
+                )}
+              </button>
+              {isEditing ? null : (
+                <button
+                  className="flex items-center gap-2 px-2 py-1 rounded text-left hover:bg-gray-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditing(true);
+                    setTimeout(() => addEducation(), 100);
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>添加教育经历</span>
+                </button>
+              )}
+            </Popover.Content>
+          </Popover.Portal>
+        </Popover.Root>
+      </div>
       
       {/* Section Title */}
       <h2 className="text-2xl font-bold mb-1">Education</h2>
