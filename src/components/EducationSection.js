@@ -1,49 +1,42 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useResume } from '../context/ResumeContext';
-import { Pencil, Check, Plus, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 
 export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) => {
   const { resumeData, updateResumeField } = useResume();
   const { education } = resumeData;
   
-  // State for tracking editing mode
-  const [isEditing, setIsEditing] = useState(false);
+  // State for education items
+  const [educationItems, setEducationItems] = useState([...education]);
   
-  // State for storing temporary edits before saving
-  const [editData, setEditData] = useState([...education]);
+  // Provide context menu options for the parent component
+  useEffect(() => {
+    if (onMenuAction) {
+      onMenuAction({ 
+        addEducation 
+      });
+    }
+  }, []);
   
-  // Handle input changes
-  const handleChange = (index, field, value) => {
-    const newEditData = [...editData];
-    newEditData[index] = {
-      ...newEditData[index],
+  // Handle changes to fields
+  const handleFieldChange = (index, field, value) => {
+    const newItems = [...educationItems];
+    newItems[index] = {
+      ...newItems[index],
       [field]: value
     };
-    setEditData(newEditData);
-  };
-  
-  // Save all changes to the resume context
-  const saveChanges = () => {
-    updateResumeField('education', editData);
-    setIsEditing(false);
-  };
-  
-  // Toggle editing mode
-  const toggleEditing = () => {
-    if (isEditing) {
-      saveChanges();
-    } else {
-      setEditData([...education]);
-      setIsEditing(true);
-    }
+    setEducationItems(newItems);
+    
+    // Update in context
+    updateResumeField(`education[${index}].${field}`, value);
   };
   
   // Add a new education entry
   const addEducation = () => {
-    setEditData([
-      ...editData,
+    const newItems = [
+      ...educationItems,
       {
         universityName: "",
         universityLocation: "",
@@ -54,58 +47,34 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
         gpa: "",
         courses: ""
       }
-    ]);
+    ];
+    setEducationItems(newItems);
+    updateResumeField('education', newItems);
   };
   
   // Remove an education entry
   const removeEducation = (index) => {
-    const newEditData = [...editData];
-    newEditData.splice(index, 1);
-    setEditData(newEditData);
+    const newItems = [...educationItems];
+    newItems.splice(index, 1);
+    setEducationItems(newItems);
+    updateResumeField('education', newItems);
   };
   
-  // 导出菜单操作函数，以便在SortableEducationBlock中使用
-  const getMenuOptions = () => {
-    return [
-      {
-        icon: isEditing ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />,
-        label: isEditing ? '保存教育经历' : '编辑教育经历',
-        action: toggleEditing
-      },
-      ...(isEditing ? [] : [{
-        icon: <Plus className="w-4 h-4" />,
-        label: '添加教育经历',
-        action: () => {
-          setIsEditing(true);
-          setTimeout(() => addEducation(), 100);
-        }
-      }])
-    ];
+  // Editable field component
+  const EditableField = ({ index, field, placeholder, className = '' }) => {
+    return (
+      <input
+        type="text"
+        value={educationItems[index][field] || ''}
+        onChange={(e) => handleFieldChange(index, field, e.target.value)}
+        placeholder={placeholder}
+        className={`bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 outline-none ${className}`}
+      />
+    );
   };
-
-  // 如果定义了onMenuAction，调用它来通知外部组件状态变化
-  React.useEffect(() => {
-    if (onMenuAction) {
-      onMenuAction({ isEditing, toggleEditing, addEducation });
-    }
-  }, [isEditing]);
-
+  
   return (
     <div className="w-full max-w-4xl mx-auto my-6 relative">
-      {/* Edit/Save Button - Only show when there's no SortableBlock parent */}
-      {!hideDefaultControls && (
-        <button 
-          onClick={toggleEditing}
-          className="absolute right-0 top-0 p-2 text-gray-500 hover:text-blue-500 transition-colors"
-        >
-          {isEditing ? (
-            <Check className="w-5 h-5" />
-          ) : (
-            <Pencil className="w-5 h-5" />
-          )}
-        </button>
-      )}
-      
       {/* Section Title */}
       <h2 className="text-2xl font-bold mb-1">Education</h2>
       
@@ -113,191 +82,121 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
       <hr className="border-gray-300 mb-3" />
       
       {/* Education Items */}
-      {isEditing ? (
-        <div className="space-y-6">
-          {editData.map((edu, index) => (
-            <div key={index} className="border border-gray-200 p-4 rounded-md relative mb-4">
-              <button 
-                onClick={() => removeEducation(index)} 
-                className="absolute right-2 top-2 text-red-500 hover:text-red-700"
-              >
-                <X className="w-4 h-4" />
-              </button>
-              
-              {/* University and Date Row - Justified (same as viewing mode) */}
-              <div className="flex justify-between items-center mb-3">
-                <div className="w-2/3">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">学校名称, 专业</label>
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      value={edu.universityName}
-                      onChange={(e) => handleChange(index, 'universityName', e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                      placeholder="学校名称"
-                    />
-                    <span>,</span>
-                    <input
-                      type="text"
-                      value={edu.universityMajor}
-                      onChange={(e) => handleChange(index, 'universityMajor', e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                      placeholder="专业"
-                    />
-                  </div>
-                </div>
-                <div className="w-1/3">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">起止日期</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={edu.fromDate}
-                      onChange={(e) => handleChange(index, 'fromDate', e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                      placeholder="开始"
-                    />
-                    <span>–</span>
-                    <input
-                      type="text"
-                      value={edu.toDate}
-                      onChange={(e) => handleChange(index, 'toDate', e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                      placeholder="结束"
-                    />
-                  </div>
-                </div>
+      <div className="space-y-6">
+        {educationItems.map((edu, index) => (
+          <div key={index} className="relative bg-white hover:bg-gray-50 p-4 rounded-md group">
+            <button 
+              onClick={() => removeEducation(index)} 
+              className="absolute right-2 top-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            
+            {/* University and Date Row */}
+            <div className="flex justify-between items-center mb-1">
+              <div className="font-medium flex items-baseline">
+                <EditableField 
+                  index={index} 
+                  field="universityName" 
+                  placeholder="学校名称" 
+                  className="inline-block mr-1"
+                />
+                {edu.universityMajor && ", "}
+                <EditableField 
+                  index={index} 
+                  field="universityMajor" 
+                  placeholder="专业" 
+                  className="inline-block"
+                />
               </div>
-              
-              {/* Bullet Points - mimic the list in viewing mode */}
-              <div className="pl-5">
-                <ul className="list-disc space-y-3">
-                  <li>
-                    <div className="flex items-center gap-2">
-                      <span className="min-w-[60px]">GPA:</span>
-                      <input
-                        type="text"
-                        value={edu.gpa}
-                        onChange={(e) => handleChange(index, 'gpa', e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                        placeholder="GPA"
-                      />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center gap-2">
-                      <span className="min-w-[60px]">学位:</span>
-                      <input
-                        type="text"
-                        value={edu.degree}
-                        onChange={(e) => handleChange(index, 'degree', e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                        placeholder="学位"
-                      />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-start gap-2">
-                      <span className="min-w-[60px] mt-2">课程:</span>
-                      <input
-                        type="text"
-                        value={edu.courses}
-                        onChange={(e) => handleChange(index, 'courses', e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                        placeholder="课程"
-                      />
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">位置</label>
-                <input
-                  type="text"
-                  value={edu.universityLocation}
-                  onChange={(e) => handleChange(index, 'universityLocation', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded focus:border-blue-500 focus:outline-none"
-                  placeholder="位置"
+              <div className="text-right flex items-center space-x-1">
+                <EditableField 
+                  index={index} 
+                  field="fromDate" 
+                  placeholder="起始年份" 
+                  className="inline-block w-16 text-center"
+                />
+                <span>–</span>
+                <EditableField 
+                  index={index} 
+                  field="toDate" 
+                  placeholder="结束年份" 
+                  className="inline-block w-16 text-center"
                 />
               </div>
             </div>
-          ))}
-          
-          <button 
-            onClick={addEducation}
-            className="flex items-center mt-4 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100"
-          >
-            <Plus className="w-4 h-4 mr-2" /> 添加教育经历
-          </button>
-        </div>
-      ) : (
-        <>
-          {education.map((edu, index) => (
-            <div key={index} className="mb-4">
-              {/* University and Date Row - Justified */}
-              <div className="flex justify-between items-center mb-1">
-                <div className="font-medium">
-                  {edu.universityName}
-                  {edu.universityMajor && (
-                    <span>, {edu.universityMajor}</span>
-                  )}
+            
+            {/* Bullet Points */}
+            <ul className="list-disc pl-5 space-y-1">
+              {/* GPA if available */}
+              <li>
+                <div className="flex items-baseline">
+                  <span className="mr-1">GPA:</span>
+                  <EditableField 
+                    index={index} 
+                    field="gpa" 
+                    placeholder="GPA" 
+                  />
                 </div>
-                <div className="text-right">
-                  {edu.fromDate} – {edu.toDate}
-                </div>
-              </div>
+              </li>
               
-              {/* Bullet Points */}
-              <ul className="list-disc pl-5 space-y-1">
-                {/* GPA if available */}
-                {edu.gpa && (
-                  <li>
-                    GPA: {edu.gpa}
-                  </li>
-                )}
-                
-                {/* Degree if available */}
-                {edu.degree && (
-                  <li>
-                    {edu.degree}
-                  </li>
-                )}
-                
-                {/* Courses if available */}
-                {edu.courses && (
-                  <li>
-                    Coursework: {edu.courses}
-                  </li>
-                )}
-              </ul>
+              {/* Degree if available */}
+              <li>
+                <EditableField 
+                  index={index} 
+                  field="degree" 
+                  placeholder="学位" 
+                />
+              </li>
+              
+              {/* Courses if available */}
+              <li>
+                <div className="flex items-baseline">
+                  <span className="mr-1">Coursework:</span>
+                  <EditableField 
+                    index={index} 
+                    field="courses" 
+                    placeholder="课程" 
+                  />
+                </div>
+              </li>
+            </ul>
+            
+            {/* Location if available */}
+            <div className="mt-2 text-sm text-gray-600">
+              <EditableField 
+                index={index} 
+                field="universityLocation" 
+                placeholder="位置" 
+              />
             </div>
-          ))}
-        </>
-      )}
+          </div>
+        ))}
+        
+        {/* Add Education Button */}
+        <button 
+          onClick={addEducation}
+          className="flex items-center mt-4 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100"
+        >
+          <Plus className="w-4 h-4 mr-2" /> 添加教育经历
+        </button>
+      </div>
     </div>
   );
 };
 
-// 附加getMenuOptions到组件，使其可以从组件外部访问
+// 附加菜单选项到组件，使其可以从组件外部访问
 EducationSection.getMenuOptions = (component) => {
   if (!component) return [];
   
-  const { isEditing, toggleEditing, setIsEditing, addEducation } = component;
+  const { addEducation } = component;
   
   return [
     {
-      icon: isEditing ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />,
-      label: isEditing ? '保存教育经历' : '编辑教育经历',
-      action: toggleEditing
-    },
-    ...(isEditing ? [] : [{
       icon: <Plus className="w-4 h-4" />,
       label: '添加教育经历',
-      action: () => {
-        setIsEditing(true);
-        setTimeout(() => addEducation(), 100);
-      }
-    }])
+      action: addEducation
+    }
   ];
 };
 

@@ -1,201 +1,156 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useResume } from '../context/ResumeContext';
-import { Pencil, Check } from 'lucide-react';
 
 export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction }) => {
   const { resumeData, updateResumeField } = useResume();
   const { userInfo } = resumeData;
   
-  // State for tracking editing mode
-  const [isEditing, setIsEditing] = useState(false);
+  // State for user info
+  const [userInfoState, setUserInfoState] = useState({...userInfo});
+  // Keep track of changes that need to be synced to context
+  const pendingUpdates = useRef({});
   
-  // State for storing temporary edits before saving
-  const [editData, setEditData] = useState({...userInfo});
+  // Sync local state with context state
+  useEffect(() => {
+    setUserInfoState({...userInfo});
+  }, [userInfo]);
   
-  // Handle input changes
-  const handleChange = (field, value) => {
-    setEditData({
-      ...editData,
-      [field]: value
-    });
-  };
-  
-  // Save all changes to the resume context
-  const saveChanges = () => {
-    // Update each field in the resume context
-    Object.keys(editData).forEach(field => {
-      if (editData[field] !== userInfo[field]) {
-        updateResumeField(`userInfo.${field}`, editData[field]);
-      }
-    });
-    
-    setIsEditing(false);
-  };
-  
-  // Toggle editing mode
-  const toggleEditing = () => {
-    if (isEditing) {
-      saveChanges();
-    } else {
-      setEditData({...userInfo});
-      setIsEditing(true);
-    }
-  };
-  
-  // 如果定义了onMenuAction，调用它来通知外部组件状态变化
-  React.useEffect(() => {
+  // Provide context menu options for the parent component
+  useEffect(() => {
     if (onMenuAction) {
-      onMenuAction({ isEditing, toggleEditing });
+      onMenuAction({});
     }
-  }, [isEditing]);
+  }, []);
+  
+  // Handle changes to fields - only update local state
+  const handleFieldChange = (field, value) => {
+    // Update local state immediately for responsive UI
+    setUserInfoState(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Store the update in ref (doesn't cause re-render)
+    pendingUpdates.current[field] = value;
+  };
+  
+  // Update global context when field loses focus
+  const handleFieldBlur = (field) => {
+    // Get the value from the pendingUpdates ref
+    const value = pendingUpdates.current[field];
+    
+    // Only update if there's a value to update
+    if (value !== undefined) {
+      // Update in context
+      updateResumeField(`userInfo.${field}`, value);
+      
+      // Clear pending update for this field
+      delete pendingUpdates.current[field];
+    }
+  };
+  
+  // Editable field component
+  const EditableField = ({ field, placeholder, className = '' }) => {
+    // Use ref to maintain input reference
+    const inputRef = useRef(null);
+    
+    return (
+      <input
+        ref={inputRef}
+        type="text"
+        value={userInfoState[field] || ''}
+        onChange={(e) => handleFieldChange(field, e.target.value)}
+        //onBlur={() => handleFieldBlur(field)}
+        placeholder={placeholder}
+        className={`bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 outline-none text-center ${className}`}
+      />
+    );
+  };
   
   return (
     <div className="w-full flex justify-center my-8 relative">
-      {/* Edit/Save Button - Only show when hideDefaultControls is false */}
-      {!hideDefaultControls && (
-        <button 
-          onClick={toggleEditing}
-          className="absolute right-0 top-0 p-2 text-gray-500 hover:text-blue-500 transition-colors"
-        >
-          {isEditing ? (
-            <Check className="w-5 h-5" />
-          ) : (
-            <Pencil className="w-5 h-5" />
-          )}
-        </button>
-      )}
-      
       <div className="text-center max-w-3xl w-full">
         {/* User's name - large and bold */}
-        {isEditing ? (
-          <div className="flex gap-2 justify-center mb-4">
-            <input
-              type="text"
-              value={editData.firstName}
-              onChange={(e) => handleChange('firstName', e.target.value)}
-              className="text-4xl font-bold text-center border-b border-gray-300 focus:border-blue-500 outline-none w-1/3"
-              placeholder="名"
-            />
-            <input
-              type="text"
-              value={editData.lastName}
-              onChange={(e) => handleChange('lastName', e.target.value)}
-              className="text-4xl font-bold text-center border-b border-gray-300 focus:border-blue-500 outline-none w-1/3"
-              placeholder="姓"
-            />
-          </div>
-        ) : (
-          <h1 className="text-4xl font-bold mb-4">
-            {userInfo.firstName} {userInfo.lastName}
-          </h1>
-        )}
+        <div className="flex gap-2 justify-center mb-4">
+          <EditableField 
+            field="firstName" 
+            placeholder="名" 
+            className="text-4xl font-bold"
+          />
+          <EditableField 
+            field="lastName" 
+            placeholder="姓" 
+            className="text-4xl font-bold"
+          />
+        </div>
         
         {/* Second line - contact info */}
-        <div className="text-gray-700 mb-2">
-          {isEditing ? (
-            <div className="flex flex-wrap gap-2 justify-center mb-2">
-              <input
-                type="text"
-                value={editData.location}
-                onChange={(e) => handleChange('location', e.target.value)}
-                className="text-center border-b border-gray-300 focus:border-blue-500 outline-none"
-                placeholder="所在地"
-              />
-              <input
-                type="email"
-                value={editData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                className="text-center border-b border-gray-300 focus:border-blue-500 outline-none"
-                placeholder="邮箱"
-              />
-              <input
-                type="tel"
-                value={editData.phoneNumber}
-                onChange={(e) => handleChange('phoneNumber', e.target.value)}
-                className="text-center border-b border-gray-300 focus:border-blue-500 outline-none"
-                placeholder="电话"
-              />
-              <input
-                type="text"
-                value={editData.websiteOrOtherProfileURL}
-                onChange={(e) => handleChange('websiteOrOtherProfileURL', e.target.value)}
-                className="text-center border-b border-gray-300 focus:border-blue-500 outline-none"
-                placeholder="个人网站"
-              />
-            </div>
-          ) : (
-            <>
-              {userInfo.location && (
-                <span>{userInfo.location}</span>
-              )}
-              
-              {userInfo.location && userInfo.email && (
-                <span className="mx-2">|</span>
-              )}
-              
-              {userInfo.email && (
-                <span>{userInfo.email}</span>
-              )}
-              
-              {userInfo.email && userInfo.phoneNumber && (
-                <span className="mx-2">|</span>
-              )}
-              
-              {userInfo.phoneNumber && (
-                <span>{userInfo.phoneNumber}</span>
-              )}
-              
-              {userInfo.phoneNumber && userInfo.websiteOrOtherProfileURL && (
-                <span className="mx-2">|</span>
-              )}
-              
-              {userInfo.websiteOrOtherProfileURL && (
-                <span>{userInfo.websiteOrOtherProfileURL}</span>
-              )}
-            </>
+        <div className="text-gray-700 mb-2 flex flex-wrap justify-center gap-x-2">
+          <EditableField 
+            field="location" 
+            placeholder="所在地" 
+            className="inline-block"
+          />
+          
+          {userInfoState.location && userInfoState.email && (
+            <span>|</span>
           )}
+          
+          <EditableField 
+            field="email" 
+            placeholder="邮箱" 
+            className="inline-block"
+          />
+          
+          {userInfoState.email && userInfoState.phoneNumber && (
+            <span>|</span>
+          )}
+          
+          <EditableField 
+            field="phoneNumber" 
+            placeholder="电话" 
+            className="inline-block"
+          />
+          
+          {userInfoState.phoneNumber && userInfoState.websiteOrOtherProfileURL && (
+            <span>|</span>
+          )}
+          
+          <EditableField 
+            field="websiteOrOtherProfileURL" 
+            placeholder="个人网站" 
+            className="inline-block"
+          />
         </div>
         
         {/* Third line - social profiles */}
-        <div className="text-gray-700">
-          {isEditing ? (
-            <div className="flex gap-2 justify-center">
-              <input
-                type="text"
-                value={editData.linkedInURL}
-                onChange={(e) => handleChange('linkedInURL', e.target.value)}
-                className="text-center border-b border-gray-300 focus:border-blue-500 outline-none"
-                placeholder="LinkedIn"
-              />
-              <input
-                type="text"
-                value={editData.githubURL}
-                onChange={(e) => handleChange('githubURL', e.target.value)}
-                className="text-center border-b border-gray-300 focus:border-blue-500 outline-none"
-                placeholder="GitHub"
-              />
-            </div>
-          ) : (
-            <>
-              {userInfo.linkedInURL && (
-                <span>{userInfo.linkedInURL}</span>
-              )}
-              
-              {userInfo.linkedInURL && userInfo.githubURL && (
-                <span className="mx-2">|</span>
-              )}
-              
-              {userInfo.githubURL && (
-                <span>{userInfo.githubURL}</span>
-              )}
-            </>
+        <div className="text-gray-700 flex justify-center gap-x-2">
+          <EditableField 
+            field="linkedInURL" 
+            placeholder="LinkedIn" 
+            className="inline-block"
+          />
+          
+          {userInfoState.linkedInURL && userInfoState.githubURL && (
+            <span>|</span>
           )}
+          
+          <EditableField 
+            field="githubURL" 
+            placeholder="GitHub" 
+            className="inline-block"
+          />
         </div>
       </div>
     </div>
   );
+};
+
+// 附加菜单选项到组件，使其可以从组件外部访问
+UserBasicInfoSection.getMenuOptions = () => {
+  return [];
 };
 
 export default UserBasicInfoSection;
