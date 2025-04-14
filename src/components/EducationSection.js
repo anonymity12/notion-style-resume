@@ -80,17 +80,22 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
               <X className="w-4 h-4" />
             </button>
             
-            {/* University and Date Row */}
-            <div className="flex justify-between items-center mb-1">
-              <div className="font-medium flex items-baseline">
+            {/* University and Date Row - 三列均分布局 */}
+            <div className="grid grid-cols-3 gap-2 items-center mb-1">
+              {/* 学校名称 - 左侧 */}
+              <div className="text-left">
                 <EditableField 
                   index={index} 
                   field="universityName" 
                   placeholder="学校名称" 
-                  className="inline-block mr-1"
+                  className="inline-block"
                   value={educationItems}
                   onChange={handleFieldChange}
                 />
+              </div>
+              
+              {/* 专业 - 居中 */}
+              <div className="text-center">
                 <EditableField 
                   index={index} 
                   field="universityMajor" 
@@ -100,7 +105,9 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
                   onChange={handleFieldChange}
                 />
               </div>
-              <div className="text-right flex items-center space-x-1">
+              
+              {/* 年份 - 右侧 */}
+              <div className="text-right flex items-center justify-end space-x-1">
                 <EditableField 
                   index={index} 
                   field="fromDate" 
