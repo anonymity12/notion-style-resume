@@ -126,7 +126,6 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
               {/* GPA if available */}
               <li>
                 <div className="flex items-baseline">
-                  <span className="mr-1">GPA:</span>
                   <EditableField 
                     index={index} 
                     field="gpa" 
@@ -151,7 +150,6 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
               {/* Courses if available */}
               <li>
                 <div className="flex items-baseline">
-                  <span className="mr-1">Coursework:</span>
                   <EditableField 
                     index={index} 
                     field="courses" 
