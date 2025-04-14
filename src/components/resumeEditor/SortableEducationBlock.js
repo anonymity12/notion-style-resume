@@ -35,17 +35,12 @@ export const SortableEducationBlock = ({ id }) => {
 
   // 根据EducationSection的状态获取菜单选项
   const getMenuOptions = () => {
-    const { isEditing, toggleEditing, addEducation } = sectionState;
+    const { addEducation } = sectionState;
     
-    if (!toggleEditing || !addEducation) return [];
+    if (!addEducation) return [];
     
     return [
       {
-        icon: isEditing ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />,
-        label: isEditing ? '保存教育经历' : '编辑教育经历',
-        action: toggleEditing
-      },
-      ...(isEditing ? [] : [{
         icon: <Plus className="w-4 h-4" />,
         label: '添加教育经历',
         action: () => {
@@ -53,7 +48,7 @@ export const SortableEducationBlock = ({ id }) => {
             addEducation();
           }
         }
-      }])
+      }
     ];
   };
 

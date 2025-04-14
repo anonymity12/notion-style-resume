@@ -176,14 +176,6 @@ export const EducationSection = ({ hideDefaultControls = false, onMenuAction }) 
             </div>
           </div>
         ))}
-        
-        {/* Add Education Button */}
-        <button 
-          onClick={addEducation}
-          className="flex items-center mt-4 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100"
-        >
-          <Plus className="w-4 h-4 mr-2" /> 添加教育经历
-        </button>
       </div>
     </div>
   );
