@@ -53,14 +53,14 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
   };
   
   return (
-    <div className="w-full flex justify-center my-8 relative">
+    <div className="w-full flex justify-center my-2 relative">
       <div className="text-center max-w-3xl w-full">
         {/* User's name - large and bold */}
-        <div className="flex gap-2 justify-center mb-4">
+        <div className="flex gap-1 justify-center mb-1">
           <EditableField 
             field="firstName" 
             placeholder="名" 
-            className="text-4xl font-bold text-center"
+            className="text-3xl font-bold text-center w-auto"
             value={userInfoState}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
@@ -68,7 +68,7 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
           <EditableField 
             field="lastName" 
             placeholder="姓" 
-            className="text-4xl font-bold text-center"
+            className="text-3xl font-bold text-center w-auto"
             value={userInfoState}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
@@ -76,50 +76,50 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
         </div>
         
         {/* Second line - contact info */}
-        <div className="text-gray-700 mb-2 flex flex-wrap justify-center gap-x-2">
+        <div className="text-gray-700 mb-1 flex flex-wrap justify-center items-center">
           <EditableField 
             field="location" 
             placeholder="所在地" 
-            className="inline-block text-center"
+            className="inline-block text-center w-auto px-0.5"
             value={userInfoState}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
           />
           
           {userInfoState.location && userInfoState.email && (
-            <span>|</span>
+            <span className="mx-0.5">|</span>
           )}
           
           <EditableField 
             field="email" 
             placeholder="邮箱" 
-            className="inline-block text-center"
+            className="inline-block text-center w-auto px-0.5"
             value={userInfoState}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
           />
           
           {userInfoState.email && userInfoState.phoneNumber && (
-            <span>|</span>
+            <span className="mx-0.5">|</span>
           )}
           
           <EditableField 
             field="phoneNumber" 
             placeholder="电话" 
-            className="inline-block text-center"
+            className="inline-block text-center w-auto px-0.5"
             value={userInfoState}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
           />
           
           {userInfoState.phoneNumber && userInfoState.websiteOrOtherProfileURL && (
-            <span>|</span>
+            <span className="mx-0.5">|</span>
           )}
           
           <EditableField 
             field="websiteOrOtherProfileURL" 
             placeholder="个人网站" 
-            className="inline-block text-center"
+            className="inline-block text-center w-auto px-0.5"
             value={userInfoState}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
@@ -127,24 +127,24 @@ export const UserBasicInfoSection = ({ hideDefaultControls = false, onMenuAction
         </div>
         
         {/* Third line - social profiles */}
-        <div className="text-gray-700 flex justify-center gap-x-2">
+        <div className="text-gray-700 flex justify-center items-center">
           <EditableField 
             field="linkedInURL" 
             placeholder="LinkedIn" 
-            className="inline-block text-center"
+            className="inline-block text-center w-auto px-0.5"
             value={userInfoState}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
           />
           
           {userInfoState.linkedInURL && userInfoState.githubURL && (
-            <span>|</span>
+            <span className="mx-0.5">|</span>
           )}
           
           <EditableField 
             field="githubURL" 
             placeholder="GitHub" 
-            className="inline-block text-center"
+            className="inline-block text-center w-auto px-0.5"
             value={userInfoState}
             onChange={handleFieldChange}
             onBlur={handleFieldBlur}
